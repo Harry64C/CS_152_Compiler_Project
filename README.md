@@ -9,23 +9,22 @@ Rules:
 3.
 
 Code Example
+● Integer scalar variables                                                inum x; inum y; inum avg;
 
-● Integer scalar variables    
+● One-dimensional arrays of integers                                      inum arr{3}; inum arr{20}
 
-● One-dimensional arrays of integers
+● Assignment statements                                                   inum x ~ 1; inum x ~ y;
 
-● Assignment statements
+● Arithmetic operators (e.g., “+”, “-”, “*”, “/”)                         x plus 1; x minus 1; x mult 1; x divi 1; x mod 2;
 
-● Arithmetic operators (e.g., “+”, “-”, “*”, “/”)
+● Relational operators (e.g., “<”, “==”, “>”, “!=”)                       x gt 1; x lt 1; x eq 1; x dne 1; x lte 1; x gte 1;
 
-● Relational operators (e.g., “<”, “==”, “>”, “!=”)
+● While loop (including "break" and "continue" loop control statements)   until{x gte 1}[]; go; stop;
 
-● While loop (including "break" and "continue" loop control statements)
+● If-then-else statements                                                 check (...) [...];or (...) [...];then(...) [...];
 
-● If-then-else statements
+● Read and write statements                                               inp (x); outp (x);
 
-● Read and write statements
-
-● Comments
+● Comments                                                                #this is a comment
 
 ● Functions (that can take multiple scalar arguments and return a single scalar result)
