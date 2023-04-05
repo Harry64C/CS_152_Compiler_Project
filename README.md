@@ -10,7 +10,7 @@ Rules:
 
 Code Example
 
-● Integer scalar variables
+● Integer scalar variables.         inum x; inum y; inum avg;       
 
 ● One-dimensional arrays of integers
 
