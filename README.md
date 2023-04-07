@@ -27,4 +27,4 @@ Code Example
 
 ● Comments                                                                #this is a comment
 
-● Functions (that can take multiple scalar arguments and return a single scalar result) func int name{ int paraname } [...]
+● Functions (that can take multiple scalar arguments and return a single scalar result) func inum name{ inum paraname } [...]
