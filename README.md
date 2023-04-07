@@ -21,10 +21,10 @@ Code Example
 
 ● While loop (including "break" and "continue" loop control statements)   until{x gte 1}[]; go; stop;
 
-● If-then-else statements                                                 check (...) [...];or (...) [...];then(...) [...];
+● If-then-else statements                                                 check {...} [...];or {...} [...];then{...} [...];
 
 ● Read and write statements                                               inp (x); outp (x);
 
 ● Comments                                                                #this is a comment
 
-● Functions (that can take multiple scalar arguments and return a single scalar result)
+● Functions (that can take multiple scalar arguments and return a single scalar result) func int name{ int paraname } [...]
