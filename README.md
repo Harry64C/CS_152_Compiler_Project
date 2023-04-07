@@ -1,15 +1,17 @@
 # CS_152_Compiler_Project
 
 
-Our language is one that ___
+Our language is one that is similar to c++ but is easier for writers to learn. 
+
+The language is called A++ but the file extension name is app. 
 
 Rules: 
-1.
-2.
-3.
+1. In-line comments must start with #
+   Multiline comments must begin with /# and end with #/
+2. Variable names cannot start with a number or contain special characters. 
+3. [ ] are used instead of { } in c++, respectively. The same is true for { } and ( ). 
 
-Code Example
-|	Lang. Feat.	|	Code example	|
+|	Language Features |	Code example	|
 |	------------|---------------|
 |	Scalar Integer Var	|	inum x; inum y; inum avg;	|
 |	1-D Int Array	|	inum arr{3}; inum arr{20}	|
