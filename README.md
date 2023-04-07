@@ -6,10 +6,9 @@ Our language is one that is similar to c++ but is easier for writers to learn.
 The language is called A++ but the file extension name is app. 
 
 Rules: 
-1. In-line comments must start with #
-   Multiline comments must begin with /# and end with #/
+1. In-line comments must start with # and multiline comments must begin with /# and end with #/
 2. Variable names cannot start with a number or contain special characters. 
-3. [ ] are used instead of { } in c++, respectively. The same is true for { } and ( ). 
+3. Brackets are used instead of curly braces in c++. Additionally, curly braces are used instead of parenthesis. 
 
 |	Language Features |	Code example	|
 |	------------|---------------|
@@ -37,3 +36,5 @@ Rules:
 |	cout	|	outp{output}	|
 |	Comments	|	#	|
 |	Functions	|	inum foo{ } [...]	|
+
+Token Table: 
