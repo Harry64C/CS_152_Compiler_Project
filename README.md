@@ -9,22 +9,29 @@ Rules:
 3.
 
 Code Example
-● Integer scalar variables                                                inum x; inum y; inum avg;
-
-● One-dimensional arrays of integers                                      inum arr{3}; inum arr{20}
-
-● Assignment statements                                                   inum x ~ 1; inum x ~ y;
-
-● Arithmetic operators (e.g., “+”, “-”, “*”, “/”)                         x plus 1; x minus 1; x mult 1; x divi 1; x mod 2;
-
-● Relational operators (e.g., “<”, “==”, “>”, “!=”)                       x gt 1; x lt 1; x eq 1; x dne 1; x lte 1; x gte 1;
-
-● While loop (including "break" and "continue" loop control statements)   until{x gte 1}[]; go; stop;
-
-● If-then-else statements                                                 check {...} [...];or {...} [...];then{...} [...];
-
-● Read and write statements                                               inp (x); outp (x);
-
-● Comments                                                                #this is a comment
-
-● Functions (that can take multiple scalar arguments and return a single scalar result) func inum name{ inum paraname } [...]
+|	Lang. Feat.	|	Code example	|
+|	------------|---------------|
+|	Scalar Integer Var	|	inum x; inum y; inum avg;	|
+|	1-D Int Array	|	inum arr{3}; inum arr{20}	|
+|	Assignment Statement	|	inum x ~ 1; inum x ~ y;	|
+|	Arithmetic Add	|	x plus 1	|
+|	Arithmetic Subtract	|	x minus 1	|
+|	Arithmetic Multiply	|	x mult 1	|
+|	Arithmetic Divide	|	x divi 1	|
+|	Arithmetic Modulus	|	x mod 1	|
+|	Relation “<”	|	x gt 1	|
+|	Relation ">"	|	x lt 1	|
+|	Relation "=="	|	x eq 1	|
+|	Relation "!="	|	x dne 1	|
+|	Relation "<="	|	x lte 1	|
+|	Relation ">="	|	x gte 1	|
+|	while	|	until{x gte 1}[]	|
+|	continue	|	go;	|
+|	break	|	stop;	|
+|	if	|	check {...}	|
+|	else if	|	or {...}	|
+|	else	|	then |
+|	cin	|	string input = system.inp{}	|
+|	cout	|	outp{output}	|
+|	Comments	|	#	|
+|	Functions	|	inum foo{ } [...]	|
