@@ -1,4 +1,4 @@
-# CS_152_Compiler_Project
+# CS 152 Compiler Project
 
 
 Our language is one that is similar to c++ but is easier for writers to learn. 
@@ -10,8 +10,8 @@ Rules:
 2. Variable names cannot start with a number or contain special characters. 
 3. Brackets are used instead of curly braces in c++. Additionally, curly braces are used instead of parenthesis. 
 
-|	Language Features |	Code example	|
-|	------------|---------------|
+|	Language Features |	Code example |
+|	----------------- | ------------ |
 |	Scalar Integer Var	|	inum x; inum y; inum avg;	|
 |	1-D Int Array	|	inum arr{3}; inum arr{20}	|
 |	Assignment Statement	|	inum x ~ 1; inum x ~ y;	|
@@ -35,6 +35,7 @@ Rules:
 |	cin	|	string input = system.inp{}	|
 |	cout	|	outp{output}	|
 |	Comments	|	#	|
-|	Functions	|	inum foo{ } [...]	|
+|	Return functions	|	inum foo{ } [...]	|
+|	Void functions	|	noreturn foo{ } [...]	|
 
 Token Table: 
