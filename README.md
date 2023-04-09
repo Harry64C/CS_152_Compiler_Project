@@ -49,3 +49,23 @@ Token Table:
 | plus | ADD |
 | minus | SUBTRACT |
 | mult | MULTIPLY |
+| divi | DIVISION |
+| mod | MOD |
+| eq | EQ |
+| dne | NEQ |
+| gt | GT |
+| lt | LT |
+| [ | BEGIN_BODY |
+| ] | END_BODY |
+| { | BEGIN_PARAM |
+| } | END_PARAM |
+| check | IF |
+| then | ELSE |
+| or | ELSE_IF |
+| until | WHILE |
+| stop | BREAK |
+| go | CONTINUE |
+| inp | READ | 
+| outp | WRITE |
+| ; | SEMICOLON |
+
