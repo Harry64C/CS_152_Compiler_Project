@@ -39,3 +39,10 @@ Rules:
 |	Void functions	|	noreturn foo{ } [...]	|
 
 Token Table: 
+| SYMBOL | TOKEN |
+| inum | INTEGER |
+| arr{} | ARRAY |
+| ~ | ASSIGN |
+| plus | ADD |
+| minus | SUBTRACT |
+| mult | MULTIPLY | 
