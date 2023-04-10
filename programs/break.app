@@ -1,6 +1,6 @@
 #main has a (while) loop with a break statement;
 
-noreturn main{}
+inum main{}
 [
 	inum i;
 	i ~ 0;
@@ -13,4 +13,5 @@ noreturn main{}
 		]
 		i ~ i plus i;
 	]
+	return 1;
 ]
