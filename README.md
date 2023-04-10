@@ -44,7 +44,7 @@ Token Table:
 | SYMBOL            |     TOKEN    |
 |	----------------- | ------------ |
 | inum | INTEGER |
-| arr{} | ARRAY |
+| arr() | ARRAY |
 | ~ | ASSIGN |
 | plus | ADD |
 | minus | SUBTRACT |
