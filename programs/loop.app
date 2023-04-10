@@ -7,7 +7,7 @@ inum main{}[
     i ~ 0;
     until{i lt 10}  [
         i ~ i plus 1;
-        output{i};
+        outp{i};
     ]
 
 ]
