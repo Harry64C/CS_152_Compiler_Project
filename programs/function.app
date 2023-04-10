@@ -8,7 +8,7 @@ inum multiply{inum x, inum y}
 	return x mult y;
 ]
 
-noreturn main{}
+inum main{}
 [
 	inum w;
 	inum x;
@@ -24,4 +24,5 @@ noreturn main{}
 	z ~ multiply{w, y};
 	#prints "22500", the result of 150 * 150;
 	outp{z};	
+	return 1;
 ]
