@@ -29,9 +29,9 @@ Rules:
 |	while	|	until{x gte 1}[]	|
 |	continue	|	go;	|
 |	break	|	stop;	|
-|	if	|	check {...}	|
-|	else if	|	or {...}	|
-|	else	|	then |
+|	if	|	check {"condition"}[...]	|
+|	else if	|	or {"condition"}[...]	|
+|	else	|	then[...] |
 |	cin	|	string input = system.inp{}	|
 |	cout	|	outp{output}	|
 |	Comments	|	#	|
