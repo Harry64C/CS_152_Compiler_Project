@@ -22,7 +22,7 @@ inum main{}[
     # complex equation should be 240
     x ~ 2;
     y ~ 8;
-    z ~ (x plus y) * 24;
+    z ~ (x plus y) mult 24;
     outp{z};
 
     return 0;
