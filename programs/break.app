@@ -4,7 +4,7 @@ noreturn function main{}
 [
 	inum i;
 	i ~ 0;
-	until{i lteq 10}
+	until{i lte 10}
 	[
 		outp{i};
 		check{i gt 3}
