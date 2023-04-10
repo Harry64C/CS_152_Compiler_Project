@@ -55,6 +55,8 @@ Token Table:
 | dne | NEQ |
 | gt | GT |
 | lt | LT |
+| gte | GTE |
+| lte | LTE |
 | [ | BEGIN_BODY |
 | ] | END_BODY |
 | { | BEGIN_PARAM |
