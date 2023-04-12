@@ -1,7 +1,7 @@
-//
+%%
 "inum" { print( "INT" ); }
 "~" { print( "ASSIGN" ); }
 "plus" { print ( "ADD" ); }
 "minus" { print( "SUBTRACT" ); }
 "mult" { print( "MULTIPLY" ); }
-//
+%%
