@@ -1,5 +1,11 @@
+%{
+//c code here
+#include <stdio.h>
+%}
+
 DIGIT [0-9]
 LETTER [a-zA-Z]
+
 %%
 "inum" { print( "INT" ); }
 "~" { print( "ASSIGN" ); }
