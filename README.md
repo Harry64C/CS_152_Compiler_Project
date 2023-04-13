@@ -52,11 +52,11 @@ Token Table:
 | divi | DIVISION |
 | mod | MOD |
 | eq | EQ |
+| gte | GTE |
+| lte | LTE |
 | dne | NEQ |
 | gt | GT |
 | lt | LT |
-| gte | GTE |
-| lte | LTE |
 | [ | BEGIN_BODY |
 | ] | END_BODY |
 | { | BEGIN_PARAM |
@@ -70,4 +70,4 @@ Token Table:
 | inp | READ | 
 | outp | WRITE |
 | ; | SEMICOLON |
-
+| # | COMMENT |
