@@ -1,3 +1,3 @@
 all:
-	flex lexer.lexer
+	flex lexer.lex
 	gcc lex.yy.c -lfl
