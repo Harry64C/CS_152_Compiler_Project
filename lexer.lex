@@ -1,5 +1,4 @@
 %{
-//c code here
 #include <stdio.h>
 %}
 
@@ -7,43 +6,41 @@ DIGIT [0-9]
 LETTER [a-zA-Z]
 
 %%
-"inum" { print( "INTEGER" ); }
-"arr{"(DIGIT)*"}" { print( "ARRAY" ); }
-"~" { print( "ASSIGN" ); }
-"plus" { print ( "ADD" ); }
-"minus" { print( "SUBTRACT" ); }
-"mult" { print( "MULTIPLY" ); }
-"divi" { print( "DIVISION" ); }
-"mod" { print( "MOD" ); }
+"inum" { printf( "INTEGER" ); }
+"arr{{DIGIT}*}" { printf( "ARRAY" ); }
+"~" { printf( "ASSIGN" ); }
+"plus" { printf ( "ADD" ); }
+"minus" { printf( "SUBTRACT" ); }
+"mult" { printf( "MULTIPLY" ); }
+"divi" { printf( "DIVISION" ); }
+"mod" { printf( "MOD" ); }
 
-"eq" { print( "EQ" ); }
-"gte" { print( "GTE" ); }
-"lte" { print( "LTE" ); }
-"dne" { print( "NEQ" ); }
-"gt" { print( "GT" ); }
-"lt" { print( "LT" ); }
+"eq" { printf( "EQ" ); }
+"gte" { printf( "GTE" ); }
+"lte" { printf( "LTE" ); }
+"dne" { printf( "NEQ" ); }
+"gt" { printf( "GT" ); }
+"lt" { printf( "LT" ); }
 
-"[" { print( "BEGIN_BODY" ); }
-"]" { print( "END_BODY" ); }
-"{" { print( "BEGIN_PARAM" ); }
-"}" { print( "END_PARAM" ); }
+"[" { printf( "BEGIN_BODY" ); }
+"]" { printf( "END_BODY" ); }
+"{" { printf( "BEGIN_PARAM" ); }
+"}" { printf( "END_PARAM" ); }
 
-"check" { print( "IF" ); }
-"then" { print( "ELSE" ); }
-"or" { print( "ELSE_IF" ); }
-"until" { print( "WHILE" ); }
-"stop" { print( "BREAK" ); }
-"go" { print( "CONTINUE" ); }
-"inp" { print( "READ" ); }
-"outp" { print( "WRITE" ); }
+"check" { printf( "IF" ); }
+"then" { printf( "ELSE" ); }
+"or" { printf( "ELSE_IF" ); }
+"until" { printf( "WHILE" ); }
+"stop" { printf( "BREAK" ); }
+"go" { printf( "CONTINUE" ); }
+"inp" { printf( "READ" ); }
+"outp" { printf( "WRITE" ); }
 
-";" { print( "SEMICOLON" ); }
-"#" { print( "COMMENT" ); }
-(DIGIT)+ { printf( "NUMBER: %s\n", yytext); }
-(LETTER)+ { printf( "WORD: %s\n", yytext); }
-(LETTER)+(DIGIT|LETTER)+ {printf( "IDENTIFIER: %s\n", yytext); }
-(DIGIT)+(LETTER)+(DIGIT|LETTER)+ {printf(" Error at line %s: identifier must start with a letter", yylineno); }
-. { printf( "Error at line %s: unrecognized symbol\n", yylineno); }
+";" { printf( "SEMICOLON" ); }
+"#" { printf( "COMMENT" ); }
+{DIGIT}+ { printf( "NUMBER: %s\n", yytext); }
+{LETTER}+ { printf( "WORD: %s\n", yytext); }
+
 %%
 int main(void){
   printf("CTRL+D to quit\n");
