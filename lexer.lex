@@ -7,9 +7,6 @@ DIGIT [0-9]
 LETTER [a-zA-Z]
 
 %%
-(DIGIT)+ { printf( "NUMBER: %s\n", yytext); }
-(LETTER)+ { printf( "WORD: %s\n", yytext); }
-
 "inum" { print( "INTEGER" ); }
 "arr{"(DIGIT)*"}" { print( "ARRAY" ); }
 "~" { print( "ASSIGN" ); }
@@ -42,6 +39,11 @@ LETTER [a-zA-Z]
 
 ";" { print( "SEMICOLON" ); }
 "#" { print( "COMMENT" ); }
+(DIGIT)+ { printf( "NUMBER: %s\n", yytext); }
+(LETTER)+ { printf( "WORD: %s\n", yytext); }
+(LETTER)+(DIGIT|LETTER)+ {printf( "IDENTIFIER: %s\n", yytext); }
+(DIGIT)+(LETTER)+(DIGIT|LETTER)+ {printf(" Error at line %s: identifier must start with a letter", yylineno); }
+. { printf( "Error at line %s: unrecognized symbol\n", yylineno); }
 %%
 int main(void){
   printf("CTRL+D to quit\n");
