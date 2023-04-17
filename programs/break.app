@@ -1,6 +1,6 @@
 #main has a (while) loop with a break statement;
 
-inum main{}
+inum funct main{}
 [
 	inum i;
 	i ~ 0;
