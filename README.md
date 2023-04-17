@@ -13,7 +13,7 @@ Rules:
 |	Language Features |	Code example |
 |	----------------- | ------------ |
 |	Scalar Integer Var	|	inum x; inum y; inum avg;	|
-|	1-D Int Array	|	inum arr{3}; inum a{20}	|
+|	1-D Int Array	|	arr a{3}; arr a{20}	|
 |	Assignment Statement	|	inum x ~ 1; inum x ~ y;	|
 |	Arithmetic Add	|	x plus 1	|
 |	Arithmetic Subtract	|	x minus 1	|
@@ -35,8 +35,8 @@ Rules:
 |	cin	|	inum input = system.inp{}	|
 |	cout	|	outp{output}	|
 |	Comments	|	#	|
-|	Return functions	|	inum foo{ } [...]	|
-|	Void functions	|	noreturn foo{ } [...]	|
+|	Return functions	|	inum funct foo{ } [...]	|
+|	Void functions	|	noreturn funct foo{ } [...]	|
 
 Token Table: 
 
