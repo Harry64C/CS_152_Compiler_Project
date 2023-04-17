@@ -1,6 +1,6 @@
 # This is a simple loop that counts from 1 to 10
 
-inum main{}[
+inum funct main{}[
 
     inum i;
 
