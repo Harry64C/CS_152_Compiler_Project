@@ -47,7 +47,15 @@ LETTER [a-zA-Z]
 . { printf("**Error. Unidentified token '%s' \n", yytext);}
 
 %%
-int main(void){
-  printf("CTRL+D to quit\n");
-  yylex();
+int main(arc, argv) int arc; char** argv;
+{
+    argv++;
+    argc--;
+    if(argc > 0){
+        yyin = fopen( argv[0], "r");
+    }else{
+        yyin = stdin;
+    }
+    yylex();
 }
+
