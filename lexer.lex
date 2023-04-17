@@ -4,11 +4,17 @@
 
 DIGIT [0-9]
 LETTER [a-zA-Z]
- 
+INVALIDI {0-9a-zA-z}
 
 %%
+%{
+int lineNumber = 1;
+%}
+
+
 " "    {}
-\t     {}   
+\t     {}
+\n     {lineNumber++;}
 "inum" { printf( "INTEGER\n"); }
 "arr" { printf( "ARRAY \n"); }
 "func" { printf("FUNCTION\n");}
@@ -30,6 +36,8 @@ LETTER [a-zA-Z]
 "]" { printf( "END_BODY \n" ); }
 "{" { printf( "BEGIN_PARAM \n" ); }
 "}" { printf( "END_PARAM \n" ); }
+"(" { printf( "L_PAREN \n"); }
+")" { printf( "R_PAREN \n"); }
 
 "check" { printf( "IF \n" ); }
 "then" { printf( "ELSE \n" ); }
@@ -41,21 +49,27 @@ LETTER [a-zA-Z]
 "outp" { printf( "WRITE \n" ); }
 
 ";" { printf( "SEMICOLON \n" ); }
-"#" { printf( "COMMENT \n" ); }
+"," { printf( "COMMA \n");}
+"#".* {printf("Comment on line %d\n", lineNumber);}
 {DIGIT}+ { printf( "NUMBER: %s\n", yytext); }
 {LETTER}+ { printf( "WORD: %s\n", yytext); }
-. { printf("**Error. Unidentified token '%s' at line %s\n", yytext, yylineno);}
+[0-9]+[a-zA-Z][0-9a-zA-Z]* {printf("**Error. Invalid identifier '%s' on line '%d'\n", yytext, lineNumber);}
+. { printf("**Error. Unidentified token '%s' on line '%d'\n", yytext, lineNumber);}
 
 %%
-int main(void)
+int main(int argc, char** argv)
 {
-    printf("ENTER FIlename.ext");
-    char fn[50] = stdin;
-    if( strlen(fn) > 0){
-        yyin = fopen( fn, "r");
+    int i = 0;
+    argv++;
+    argc--;
+    if(argc > 0){
+        yyin = fopen( argv[0], "r");
     }else{
+        //printf("%d \n", i++);
         yyin = stdin;
     }
     yylex();
-}
+    
+    //printf("End of program");
+
 
