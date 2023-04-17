@@ -47,12 +47,12 @@ LETTER [a-zA-Z]
 . { printf("**Error. Unidentified token '%s' at line %s\n", yytext, yylineno);}
 
 %%
-int main(int arc, char** argv)
+int main(void)
 {
-    argv++;
-    argc--;
+    printf("ENTER FIlename.ext");
+    string fn = stdin;
     if(argc > 0){
-        yyin = fopen( argv[0], "r");
+        yyin = fopen( fn, "r");
     }else{
         yyin = stdin;
     }
