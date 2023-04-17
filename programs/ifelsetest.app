@@ -1,4 +1,4 @@
-inum main{}[
+inum funct main{}[
 
   inum m;
   inum n;
