@@ -1,4 +1,4 @@
-inum main{}[
+inum funct main{}[
     inum x ~ 100;
     inum y ~ 50;
     inum z;
