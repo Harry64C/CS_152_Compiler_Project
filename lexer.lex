@@ -44,7 +44,7 @@ LETTER [a-zA-Z]
 "#" { printf( "COMMENT \n" ); }
 {DIGIT}+ { printf( "NUMBER: %s\n", yytext); }
 {LETTER}+ { printf( "WORD: %s\n", yytext); }
-. { printf("**Error. Unidentified token '%s' \n", yytext);}
+. { printf("**Error. Unidentified token '%s' at line %s\n", yytext, yylineno);}
 
 %%
 int main(int arc, char** argv)
