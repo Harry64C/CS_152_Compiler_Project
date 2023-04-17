@@ -47,7 +47,7 @@ LETTER [a-zA-Z]
 . { printf("**Error. Unidentified token '%s' \n", yytext);}
 
 %%
-int main(arc, argv) int arc; char** argv;
+int main(int arc, char** argv)
 {
     argv++;
     argc--;
