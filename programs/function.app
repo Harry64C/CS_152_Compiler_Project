@@ -15,8 +15,8 @@ inum funct main{}
 	inum y;
 	inum z;
 
-	w ~ 100
-	x ~ 50
+	w ~ 100;
+	x ~ 50;
 	y ~ add{w, x};
 	#prints "150", the sum of 100 and 50;
 	outp{c};	
