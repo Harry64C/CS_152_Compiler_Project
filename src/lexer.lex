@@ -4,17 +4,11 @@
 
 DIGIT [0-9]
 LETTER [a-zA-Z]
-INVALIDI {0-9a-zA-z}
+ 
 
 %%
-%{
-int lineNumber = 1;
-%}
-
-
 " "    {}
-\t     {}
-\n     {lineNumber++;}
+\t     {}   
 "inum" { printf( "INTEGER\n"); }
 "arr" { printf( "ARRAY \n"); }
 "func" { printf("FUNCTION\n");}
@@ -47,27 +41,13 @@ int lineNumber = 1;
 "outp" { printf( "WRITE \n" ); }
 
 ";" { printf( "SEMICOLON \n" ); }
-"," { printf( "COMMA \n");}
-"#".* {printf("Comment on line %d\n", lineNumber);}
+"#" { printf( "COMMENT \n" ); }
 {DIGIT}+ { printf( "NUMBER: %s\n", yytext); }
 {LETTER}+ { printf( "WORD: %s\n", yytext); }
-[0-9]+[a-zA-Z][0-9a-zA-Z]* {printf("**Error. Invalid identifier '%s' on line '%d'\n", yytext, lineNumber);}
-. { printf("**Error. Unidentified token '%s' on line '%d'\n", yytext, lineNumber);}
+. { printf("**Error. Unidentified token '%s' \n", yytext);}
 
 %%
-int main(int argc, char** argv)
-{
-    int i = 0;
-    argv++;
-    argc--;
-    if(argc > 0){
-        yyin = fopen( argv[0], "r");
-    }else{
-        //printf("%d \n", i++);
-        yyin = stdin;
-    }
-    yylex();
-    
-    //printf("End of program");
-
-
+int main(void){
+  printf("CTRL+D to quit\n");
+  yylex();
+}
