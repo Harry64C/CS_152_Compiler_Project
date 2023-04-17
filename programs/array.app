@@ -1,6 +1,6 @@
-inum main{}[
+inum funct main{}[
 
-    inum a{20};
+    arr a{20};
     inum b;
     inum c;
 
