@@ -1,14 +1,14 @@
-inum add{inum x, i num y}
+inum funct add{inum x, i num y}
 [
 	return x plus y;
 ]
 
-inum multiply{inum x, inum y}
+inum funct multiply{inum x, inum y}
 [
 	return x mult y;
 ]
 
-inum main{}
+inum funct main{}
 [
 	inum w;
 	inum x;
