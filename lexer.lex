@@ -11,7 +11,7 @@ LETTER [a-zA-Z]
 \t     {}   
 "inum" { printf( "INTEGER\n"); }
 "arr" { printf( "ARRAY \n"); }
-"dunc" { printf("FUNCTION\n");}
+"func" { printf("FUNCTION\n");}
 "~" { printf( "ASSIGN \n" ); }
 "plus" { printf ( "ADD \n" ); }
 "minus" { printf( "SUBTRACT \n"); }
