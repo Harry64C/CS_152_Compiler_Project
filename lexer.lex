@@ -4,42 +4,47 @@
 
 DIGIT [0-9]
 LETTER [a-zA-Z]
+ 
 
 %%
-"inum" { printf( "INTEGER" ); }
-"arr{{DIGIT}*}" { printf( "ARRAY" ); }
-"~" { printf( "ASSIGN" ); }
-"plus" { printf ( "ADD" ); }
-"minus" { printf( "SUBTRACT" ); }
-"mult" { printf( "MULTIPLY" ); }
-"divi" { printf( "DIVISION" ); }
-"mod" { printf( "MOD" ); }
+" "    {}
+\t     {}   
+"inum" { printf( "INTEGER\n"); }
+"arr" { printf( "ARRAY \n"); }
+"dunc" { printf("FUNCTION\n");}
+"~" { printf( "ASSIGN \n" ); }
+"plus" { printf ( "ADD \n" ); }
+"minus" { printf( "SUBTRACT \n"); }
+"mult" { printf( "MULTIPLY \n" ); }
+"divi" { printf( "DIVISION \n" ); }
+"mod" { printf( "MOD \n" ); }
 
-"eq" { printf( "EQ" ); }
-"gte" { printf( "GTE" ); }
-"lte" { printf( "LTE" ); }
-"dne" { printf( "NEQ" ); }
-"gt" { printf( "GT" ); }
-"lt" { printf( "LT" ); }
+"eq" { printf( "EQ \n" ); }
+"gte" { printf( "GTE \n" ); }
+"lte" { printf( "LTE \n" ); }
+"dne" { printf( "NEQ \n" ); }
+"gt" { printf( "GT \n" ); }
+"lt" { printf( "LT \n" ); }
 
-"[" { printf( "BEGIN_BODY" ); }
-"]" { printf( "END_BODY" ); }
-"{" { printf( "BEGIN_PARAM" ); }
-"}" { printf( "END_PARAM" ); }
+"[" { printf( "BEGIN_BODY \n" ); }
+"]" { printf( "END_BODY \n" ); }
+"{" { printf( "BEGIN_PARAM \n" ); }
+"}" { printf( "END_PARAM \n" ); }
 
-"check" { printf( "IF" ); }
-"then" { printf( "ELSE" ); }
-"or" { printf( "ELSE_IF" ); }
-"until" { printf( "WHILE" ); }
-"stop" { printf( "BREAK" ); }
-"go" { printf( "CONTINUE" ); }
-"inp" { printf( "READ" ); }
-"outp" { printf( "WRITE" ); }
+"check" { printf( "IF \n" ); }
+"then" { printf( "ELSE \n" ); }
+"or" { printf( "ELSE_IF \n" ); }
+"until" { printf( "WHILE \n" ); }
+"stop" { printf( "BREAK \n" ); }
+"go" { printf( "CONTINUE \n" ); }
+"inp" { printf( "READ \n" ); }
+"outp" { printf( "WRITE \n" ); }
 
-";" { printf( "SEMICOLON" ); }
-"#" { printf( "COMMENT" ); }
+";" { printf( "SEMICOLON \n" ); }
+"#" { printf( "COMMENT \n" ); }
 {DIGIT}+ { printf( "NUMBER: %s\n", yytext); }
 {LETTER}+ { printf( "WORD: %s\n", yytext); }
+. { printf("**Error. Unidentified token '%s' \n", yytext);}
 
 %%
 int main(void){
