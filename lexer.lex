@@ -47,7 +47,7 @@ int lineNumber = 1;
 "go" { printf( "CONTINUE \n" ); }
 "inp" { printf( "READ \n" ); }
 "outp" { printf( "WRITE \n" ); }
-
+"return" {printf("RETURN \n");}
 ";" { printf( "SEMICOLON \n" ); }
 "," { printf( "COMMA \n");}
 "#".* {printf("Comment on line %d\n", lineNumber);}
