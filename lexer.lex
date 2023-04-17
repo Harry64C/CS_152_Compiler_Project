@@ -50,8 +50,8 @@ LETTER [a-zA-Z]
 int main(void)
 {
     printf("ENTER FIlename.ext");
-    string fn = stdin;
-    if(argc > 0){
+    char fn[50] = stdin;
+    if( strlen(fn) > 0){
         yyin = fopen( fn, "r");
     }else{
         yyin = stdin;
