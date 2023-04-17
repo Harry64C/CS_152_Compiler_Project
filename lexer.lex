@@ -44,10 +44,18 @@ LETTER [a-zA-Z]
 "#" { printf( "COMMENT \n" ); }
 {DIGIT}+ { printf( "NUMBER: %s\n", yytext); }
 {LETTER}+ { printf( "WORD: %s\n", yytext); }
-. { printf("**Error. Unidentified token '%s' \n", yytext);}
+. { printf("**Error. Unidentified token '%s' at line %s\n", yytext, yylineno);}
 
 %%
-int main(void){
-  printf("CTRL+D to quit\n");
-  yylex();
+int main(int arc, char** argv)
+{
+    argv++;
+    argc--;
+    if(argc > 0){
+        yyin = fopen( argv[0], "r");
+    }else{
+        yyin = stdin;
+    }
+    yylex();
 }
+
