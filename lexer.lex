@@ -36,6 +36,8 @@ int lineNumber = 1;
 "]" { printf( "END_BODY \n" ); }
 "{" { printf( "BEGIN_PARAM \n" ); }
 "}" { printf( "END_PARAM \n" ); }
+"(" { printf( "L_PAREN \n"); }
+")" { printf( "R_PAREN \n"); }
 
 "check" { printf( "IF \n" ); }
 "then" { printf( "ELSE \n" ); }
