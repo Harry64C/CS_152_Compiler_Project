@@ -9,6 +9,8 @@ inum funct main{}
 	inum favoriteWord;
     inum 1n;
 	inum z;
+	inum _1n ~ 2;
+	outp(_1n);
 	inum t = 5 % 2;
     # line 10 should be an invalid identifier error
    # line 12 should also cause a symbol error;
