@@ -15,8 +15,7 @@ int lineNumber = 1;
 
 " "    {col_num +=1;}
 "   "  {col_num +=4;}
-"	"  {col_num +=4;}
-\t     {}
+\t     {col_num+=4;}
 \n     {lineNumber++;col_num = 1;}
 "inum" { printf( "INTEGER\n"); col_num+=4;}
 "arr" { printf( "ARRAY \n"); col_num+=3;}
