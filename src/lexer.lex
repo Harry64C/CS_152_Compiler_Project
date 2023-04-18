@@ -54,8 +54,10 @@ int lineNumber = 1;
 "," { printf( "COMMA \n");col_num++;}
 "#".* {}
 {DIGIT}+ { printf( "NUMBER: %s\n", yytext); col_num += yyleng;}
-{LETTER}+ { printf( "WORD: %s\n", yytext); col_num+= yyleng;}
-[0-9]+[a-zA-Z][0-9a-zA-Z]* {printf("**Error. Invalid identifier '%s' on line '%d' column '%d'\n", yytext, lineNumber, col_num);}
+{LETTER}+ { printf( "Identifier: %s\n", yytext); col_num+= yyleng;}
+[a-zA-Z]+[_0-9a-zA-Z]*[0-9a-zA-Z] {printf( "Identifier: %s\n", yytext); col_num+=yyleng;}
+[a-zA-Z]+[_0-9a-zA-Z]*[_] {printf("**Error. Identifier: '%s' on line '%d' column '%d'. Identifiers cannot end in '_' \n", yytext, lineNumber, col_num);}
+[0-9]+[a-zA-Z][0-9a-zA-Z]* {printf("**Error. Identifier: '%s' on line '%d' column '%d'. Identifiers cannot start with a number\n", yytext, lineNumber, col_num);}
 . { printf("**Error. Unidentified token '%s' on line '%d' column '%d'\n", yytext, lineNumber, col_num);}
 
 %%
