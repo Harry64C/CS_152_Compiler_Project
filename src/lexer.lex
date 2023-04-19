@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+ #include "y.tab.h" 
 int col_num = 1;
 %}
 
@@ -62,19 +63,5 @@ int lineNumber = 1;
 . { printf("**Error. Unidentified token '%s' on line '%d' column '%d'\n", yytext, lineNumber, col_num);col_num += yyleng;}
 
 %%
-int main(int argc, char** argv)
-{
-    int i = 0;
-    argv++;
-    argc--;
-    if(argc > 0){
-        yyin = fopen( argv[0], "r");
-    }else{
-        //printf("%d \n", i++);
-        yyin = stdin;
-    }
-    yylex();
-    
 
-}
 
