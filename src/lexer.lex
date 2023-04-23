@@ -55,11 +55,11 @@ int lineNumber = 1;
 "," { printf( "COMMA \n");col_num++;}
 "#".* {}
 {DIGIT}+ { printf( "NUMBER: %s\n", yytext); col_num += yyleng;}
-{LETTER}+ { printf( "Identifier: %s\n", yytext); col_num+= yyleng;}
-[a-zA-Z]+[_0-9a-zA-Z]*[0-9a-zA-Z] {printf( "Identifier: %s\n", yytext); col_num+=yyleng;}
-[_][_0-9a-zA-Z]* {printf("**Error. Identifier: '%s' on line '%d' column '%d'. Identifiers cannot start with '_' \n", yytext, lineNumber, col_num); col_num += yyleng;}
-[a-zA-Z]+[_0-9a-zA-Z]*[_] {printf("**Error. Identifier: '%s' on line '%d' column '%d'. Identifiers cannot end in '_' \n", yytext, lineNumber, col_num);col_num += yyleng;}
-[0-9]+[a-zA-Z][0-9a-zA-Z]* {printf("**Error. Identifier: '%s' on line '%d' column '%d'. Identifiers cannot start with a number\n", yytext, lineNumber, col_num);col_num += yyleng;}
+{LETTER}+ { printf( "IDENTIFIER: %s\n", yytext); col_num+= yyleng;}
+[a-zA-Z]+[_0-9a-zA-Z]*[0-9a-zA-Z] {printf( "IDENTIFIER: %s\n", yytext); col_num+=yyleng;}
+[_][_0-9a-zA-Z]* {printf("**Error. IDENTIFIER: '%s' on line '%d' column '%d'. Identifiers cannot start with '_' \n", yytext, lineNumber, col_num); col_num += yyleng;}
+[a-zA-Z]+[_0-9a-zA-Z]*[_] {printf("**Error. IDENTIFIER: '%s' on line '%d' column '%d'. Identifiers cannot end in '_' \n", yytext, lineNumber, col_num);col_num += yyleng;}
+[0-9]+[a-zA-Z][0-9a-zA-Z]* {printf("**Error. IDENTIFIER: '%s' on line '%d' column '%d'. Identifiers cannot start with a number\n", yytext, lineNumber, col_num);col_num += yyleng;}
 . { printf("**Error. Unidentified token '%s' on line '%d' column '%d'\n", yytext, lineNumber, col_num);col_num += yyleng;}
 
 %%

@@ -1,7 +1,7 @@
 %{
     #include <stdio>
 %}
-%token INT SEMICOLON IDENT BEGIN_BODY END_BODY BEGIN_PARAM END_PARAM
+%token INTEGER ARRAY FUNCTION ASSIGN ADD SUBTRACT MULTIPLY DIVISON MOD EQ GTE LTE NEQ GT LT BEGIN_BODY END_BODY BEGIN_PARAM END_PARAM L_PAREN R_PAREN IF ELSE ELSE_IF WHILE BREAK CONTINUE READ WRITE RETURN SEMICOLON COMMA NUMBER IDENTIFIER
 %start prog_start
 
 %%
@@ -11,13 +11,13 @@ prog_start: %empty {printf("prog_start->epsilon\n");}
 functions: %empty {printf("functions->epsilon\n");}
          | function functions {printf("functions-> function functions\n");}
          ;
-function: INT IDENT BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY {printf("function->INT IDENT BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY\n");} 
+function: INTEGER IDENT BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY {printf("function->INTEGER IDENT BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY\n");} 
         ;
 arguments: argument {printf("arguments->arugment\n");}
          | argument COMMA arguments {printf("arguments ->argument arguments\n");}
          ;
 argument: %empty {printf("argument->epsilon\n");}
-        | INT IDENT {printf("argument-> INT IDENT\n");}
+        | INTEGER IDENT {printf("argument-> INTEGER IDENT\n");}
         ;
 statements: %empty {printf("statements->epsilon\n");}
           | statement SEMICOLON statements {printf("statements->statement SEMICOLON statements\n");}
@@ -26,8 +26,8 @@ statement: declaration {printf("statement->declaration\n");}
          | assignment {printf("statement->assignement\n");}
          | function_call {printf("statement->function_call\n");}
          ;
-declaration: INT IDENT {printf("declaration-> INT IDENT\n");}
-           | INT IDENT ASSIGN equations {printf("declaration ->INT IDENT ASSIGN equations\n");}
+declaration: INTEGER IDENT {printf("declaration-> INTEGER IDENT\n");}
+           | INTEGER IDENT ASSIGN equations {printf("declaration ->INTEGER IDENT ASSIGN equations\n");}
            ;
 assignemnt: IDENT ASSIGN equations {printf("IDENT ASSIGN equations\n");}
           ;
@@ -41,12 +41,12 @@ addop: ADD {printf("addop ->ADD\n");}
 term: term mulop factor {printf("term->term mulop factor\n");}
     | factor {printf("term ->factor\n");}
     ;
-modOp: MULTIPLY {printf("modOp->MULTIPLY\n");}
-     | DIVISION {printf("modOp->DIVISION\n");}
-     | MOD {printf("modOp->MOD\n");}
+mulop: MULTIPLY {printf("mulop->MULTIPLY\n");}
+     | DIVISION {printf("mulop->DIVISION\n");}
+     | MOD {printf("mulop->MOD\n");}
      ;
 factor: LPR equations RPR {printf("factor->LPR equations RPR");}
-      | INT {printf("factor ->INT\n");}
+      | INTEGER {printf("factor ->INT\n");}
       | IDENT {printf("factor->IDENT\n");}
       | function_call {printf("factor->function_call\n");}
       ;
@@ -59,7 +59,7 @@ params: %empty {printf("params->epsilon\n");}
       | param COMMA params {printf("params-> param COMMA params\n");}
       ;
 param: IDENT {printf("param->IDENT\n");}
-     | INT {printf("param->INT\n");}
+     | INTEGER {printf("param->INTEGER\n");}
      ;
 %%
 int main(int argc, char** argv)
