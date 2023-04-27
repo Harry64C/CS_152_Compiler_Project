@@ -34,6 +34,8 @@ int lineNumber = 1;
 "dne" { printf( "NEQ \n" ); col_num+=3;}
 "gt" { printf( "GT \n" );col_num+=2; }
 "lt" { printf( "LT \n" );col_num+=2; }
+"and" { printf( "AND \n" ); col_num+=3;}
+"or" { printf( "OR \n" );col_num+=2; }
 
 "[" { printf( "BEGIN_BODY \n" ); col_num++;}
 "]" { printf( "END_BODY \n" ); col_num+=1;}
