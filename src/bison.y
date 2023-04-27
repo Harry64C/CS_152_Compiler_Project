@@ -1,12 +1,12 @@
 %{
     #include <stdio>
 %}
-%token INTEGER ARRAY FUNCTION ASSIGN ADD SUBTRACT MULTIPLY DIVISON MOD EQ GTE LTE NEQ GT LT BEGIN_BODY END_BODY BEGIN_PARAM END_PARAM L_PAREN R_PAREN IF ELSE ELSE_IF WHILE BREAK CONTINUE READ WRITE RETURN SEMICOLON COMMA NUMBER IDENTIFIER
+%token INTEGER ARRAY FUNCTION ASSIGN ADD SUBTRACT MULTIPLY DIVISON MOD EQ GTE LTE NEQ GT LT BEGIN_BODY END_BODY BEGIN_PARAM END_PARAM L_PAREN R_PAREN IF ELSE ELSE_IF WHILE BREAK CONTINUE READ WRITE RETURN SEMICOLON COMMA NUMBER IDENTIFIER AND OR
 %start prog_start
 
 %%
 prog_start: %empty {printf("prog_start->epsilon\n");}
-          | functions {printf("prog_start->epsilon\n");}
+          | functions {printf("prog_start->functions\n");}
           ;
 functions: %empty {printf("functions->epsilon\n");}
          | function functions {printf("functions-> function functions\n");}
@@ -29,13 +29,13 @@ statement: declaration {printf("statement->declaration\n");}
 declaration: INTEGER IDENT {printf("declaration-> INTEGER IDENT\n");}
            | INTEGER IDENT ASSIGN equations {printf("declaration ->INTEGER IDENT ASSIGN equations\n");}
            ;
-assignemnt: IDENT ASSIGN equations {printf("IDENT ASSIGN equations\n");}
+assignment: IDENT ASSIGN equations {printf("IDENT ASSIGN equations\n");}
           ;
 
 equations: equations addop term {printf("equations->equations addop term\n");}
          | term {printf("equations->term\n");}
          ;
-addop: ADD {printf("addop ->ADD\n");}
+addop: ADD {printf("addop -> ADD\n");}
      | SUBTRACT {printf("addop->SUBTRACT\n");}
      ;
 term: term mulop factor {printf("term->term mulop factor\n");}
@@ -61,6 +61,53 @@ params: %empty {printf("params->epsilon\n");}
 param: IDENT {printf("param->IDENT\n");}
      | INTEGER {printf("param->INTEGER\n");}
      ;
+
+if_start: IF BEGIN_PARAM if_check END_PARAM BEGIN_BODY statements END_BODY branch_check {printf("if_start->IF BEGIN_BODY if_check END_PARAM BEGIN_BODY statements END_BODY branch_check\n");}
+        ;
+
+if_check: fin if_check' {printf("if_check->fin if_check'\n");}
+        | L_PAREN fin R_PAREN if_check' {printf("if_check-> L_PAREN fin R_PAREN if_check'\n");}
+        ;
+
+if_check': %empty {printf("if_check'->epsilon\n");}
+         | boolop fin if_check' {printf("if_check'->boolep fin if_check'\n");}
+         ;
+
+boolop: AND {printf("boolop->AND\n");}
+      | OR {printf("boolop->OR\n");}
+
+fin: fin' compare {printf("fin->fin' compare\n");}
+   | L_PAREN fin' R_PAREN compare {printf("fin->L_PAREN fin' R_PAREN compare\n");}
+   ;
+
+compare: %empty {printf("empty'->epsilon\n");}
+       | compop fin' compare {printf("compare->compop fin' compare\n");}
+       ;
+
+fin': INTEGER {printf("fin'->INTEGER'\n");}
+    | IDENT {printf("fin'->IDENT'\n");}
+    | function_call {printf("fin'->function_call\n");}
+    ;
+
+compop: EQ {printf("compop->EQ\n");}
+      | GTE {printf("compop->GTE\n");}
+      | LTE {printf("compop->LTE\n");}
+      | NEQ {printf("compop->NEQ\n");}
+      | GT {printf("compop->GT\n");}
+      | LT {printf("compop->LT\n");}
+      ;
+
+branch_check: %empty {printf("branch_check->epsilon\n");}
+            | ELSE_IF BEGIN_PARAM if_check END_PARAM BEGIN_BODY statements END_BODY else_check {printf("branch_check->ELSE_IF BEGIN_BODY if_check END_PARAM BEGIN_BODY statements END_BODY else_check\n");}
+            | else_check {printf("branch_check->else_check\n");}
+            ;
+
+else_check: %empty {printf("else_check->epsilon\n");}
+          | ELSE BEGIN_PARAM if_check END_PARAM BEGIN_BODY statements END_BODY else_check {printf("else_check->ELSE BEGIN_BODY if_check END_PARAM BEGIN_BODY statements END_BODY else_check\n");}
+          ;
+
+until_loop: WHILE BEGIN_PARAM if_check END_PARAM BEGIN_BODY statements END_BODY {printf("until_loop->WHILE BEGIN_PARAM if_check END_PARAM BEGIN_BODY statements END_BODY\n");}
+
 %%
 int main(int argc, char** argv)
 {
