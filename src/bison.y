@@ -34,15 +34,20 @@ declaration: INTEGER IDENTIFIER {printf("declaration-> INTEGER IDENTIFIER\n");}
 assignment: IDENTIFIER ASSIGN equations {printf("IDENTIFIER ASSIGN equations\n");}
           ;
 
-equations: equations addop term {printf("equations->equations addop term\n");}
-         | term {printf("equations->term\n");}
+equations: term equationsp {printf("equations->term equationsp\n");}
          ;
+equationsp: addop term equationsp {printf("equationsp->addop term equationsp\n");}
+	    | %empty {printf("equationsp->epsilon\n");}
+	    ;
 addop: ADD {printf("addop -> ADD\n");}
      | SUBTRACT {printf("addop->SUBTRACT\n");}
      ;
-term: term mulop factor {printf("term->term mulop factor\n");}
-    | factor {printf("term ->factor\n");}
+term: factor termp {printf("term->factor termp\n");}
     ;
+
+termp: mulop factor termp {printf("termp->mulop factor termp\n");}
+     | %empty {printf("termp ->epsilon\n");}
+     ;
 mulop: MULTIPLY {printf("mulop->MULTIPLY\n");}
      | DIVISION {printf("mulop->DIVISION\n");}
      | MOD {printf("mulop->MOD\n");}
