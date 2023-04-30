@@ -5,4 +5,5 @@
 *y.tab.c
 *y.tab.h
 *lexer
+*parser
 *.output

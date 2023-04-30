@@ -1950,22 +1950,18 @@ yyreturn:
 }
 #line 127 "bison.y" /* yacc.c:1906  */
 
-int main(int argc, char** argv)
-{
-    int i = 0;
-    argv++;
-    argc--;
-    if(argc > 0){
-        yyin = fopen( argv[0], "r");
+void main(int argc, char** argv) {
+    if(argc >= 2){
+        yyin = fopen(argv[1], "r");
+        if(yyin == NULL)
+            yyin = stdin;
     }else{
-        //printf("%d \n", i++);
         yyin = stdin;
     }
     yyparse();
-    
 }
 
 void yyerror(const char* s) {
-    fprintf(stderr, "Parse error: %s. Curly braces are not balanced!\n", s);
+    fprintf(stderr, "Parse error: %s.[insert error message here]\n", s);
     exit(1);
 }

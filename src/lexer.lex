@@ -1,18 +1,16 @@
 %{
-#include <stdio.h>
- #include "y.tab.h" 
-int col_num = 1;
+    #include <stdio.h>
+    #include "y.tab.h" 
+    #define YY_DECL int yylex()
+
+    int lineNumber = 1;
+    int col_num = 1;
 %}
 
 DIGIT [0-9]
 LETTER [a-zA-Z]
 
 %%
-%{
-int lineNumber = 1;
-%}
-
-
 " "    {col_num +=1;}
 "   "  {col_num +=4;}
 \t     {col_num+=4;}
