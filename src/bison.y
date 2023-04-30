@@ -67,28 +67,28 @@ param: IDENTIFIER {printf("param->IDENTIFIER\n");}
 if_start: IF BEGIN_PARAM if_check END_PARAM BEGIN_BODY statements END_BODY branch_check {printf("if_start->IF BEGIN_BODY if_check END_PARAM BEGIN_BODY statements END_BODY branch_check\n");}
         ;
 
-if_check: fin if_check' {printf("if_check->fin if_check'\n");}
-        | L_PAREN fin R_PAREN if_check' {printf("if_check-> L_PAREN fin R_PAREN if_check'\n");}
+if_check: fin if_checkp {printf("if_check->fin if_checkp\n");}
+        | L_PAREN fin R_PAREN if_checkp {printf("if_check-> L_PAREN fin R_PAREN if_checkp\n");}
         ;
 
-if_check': %empty {printf("if_check'->epsilon\n");}
-         | boolop fin if_check' {printf("if_check'->boolep fin if_check'\n");}
+if_checkp: %empty {printf("if_checkp->epsilon\n");}
+         | boolop fin if_checkp {printf("if_checkp->boolep fin if_checkp\n");}
          ;
 
 boolop: AND {printf("boolop->AND\n");}
       | OR {printf("boolop->OR\n");}
 
-fin: fin' compare {printf("fin->fin' compare\n");}
-   | L_PAREN fin' R_PAREN compare {printf("fin->L_PAREN fin' R_PAREN compare\n");}
+fin: finp compare {printf("fin->finp compare\n");}
+   | L_PAREN finp R_PAREN compare {printf("fin->L_PAREN finp R_PAREN compare\n");}
    ;
 
-compare: %empty {printf("empty'->epsilon\n");}
-       | compop fin' compare {printf("compare->compop fin' compare\n");}
+compare: %empty {printf("empty->epsilon\n");}
+       | compop finp compare {printf("compare->compop finp compare\n");}
        ;
 
-fin': INTEGER {printf("fin'->INTEGER'\n");}
-    | IDENT {printf("fin'->IDENT'\n");}
-    | function_call {printf("fin'->function_call\n");}
+finp: INTEGER {printf("finp->INTEGER\n");}
+    | IDENT {printf("finp->IDENT\n");}
+    | function_call {printf("finp->function_call\n");}
     ;
 
 compop: EQ {printf("compop->EQ\n");}
