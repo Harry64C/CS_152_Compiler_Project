@@ -1,5 +1,12 @@
 %{
-    #include <stdio>
+    #include <stdio.h>
+    #include <stdlib.h>
+
+    extern int yylex();
+    extern int yyparse();
+    extern FILE* yyin;
+
+    void yyerror(const char* s);
 %}
 
 %token INTEGER ARRAY FUNCTION ASSIGN ADD SUBTRACT MULTIPLY DIVISION MOD EQ GTE LTE NEQ GT LT BEGIN_BODY END_BODY BEGIN_PARAM END_PARAM L_PAREN R_PAREN IF ELSE ELSE_IF WHILE BREAK CONTINUE READ WRITE RETURN SEMICOLON COMMA NUMBER IDENTIFIER AND OR
@@ -131,5 +138,9 @@ int main(int argc, char** argv)
     }
     yyparse();
     
+}
 
+void yyerror(const char* s) {
+    fprintf(stderr, "Parse error: %s. Curly braces are not balanced!\n", s);
+    exit(1);
 }
