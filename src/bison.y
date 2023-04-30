@@ -1,5 +1,12 @@
 %{
-    #include <stdio>
+    #include <stdio.h>
+    #include <stdlib.h>
+
+    extern int yylex();
+    extern int yyparse();
+    extern FILE* yyin;
+
+    void yyerror(const char* s);
 %}
 
 %token INTEGER ARRAY FUNCTION ASSIGN ADD SUBTRACT MULTIPLY DIVISION MOD EQ GTE LTE NEQ GT LT BEGIN_BODY END_BODY BEGIN_PARAM END_PARAM L_PAREN R_PAREN IF ELSE ELSE_IF WHILE BREAK CONTINUE READ WRITE RETURN SEMICOLON COMMA NUMBER IDENTIFIER AND OR
@@ -26,6 +33,8 @@ statements: %empty {printf("statements->epsilon\n");}
 statement: declaration {printf("statement->declaration\n");}
          | assignment {printf("statement->assignment\n");}
          | function_call {printf("statement->function_call\n");}
+         | if_start {printf("statement->if_start\n");}
+         | until_loop {printf("statement->until_loop\n");}
          ;
 declaration: INTEGER IDENTIFIER {printf("declaration-> INTEGER IDENTIFIER\n");}
            | INTEGER IDENTIFIER ASSIGN equations {printf("declaration ->INTEGER IDENTIFIER ASSIGN equations\n");}
@@ -34,15 +43,20 @@ declaration: INTEGER IDENTIFIER {printf("declaration-> INTEGER IDENTIFIER\n");}
 assignment: IDENTIFIER ASSIGN equations {printf("IDENTIFIER ASSIGN equations\n");}
           ;
 
-equations: equations addop term {printf("equations->equations addop term\n");}
-         | term {printf("equations->term\n");}
+equations: term equationsp {printf("equations->term equationsp\n");}
          ;
+equationsp: addop term equationsp {printf("equationsp->addop term equationsp\n");}
+	    | %empty {printf("equationsp->epsilon\n");}
+	    ;
 addop: ADD {printf("addop -> ADD\n");}
      | SUBTRACT {printf("addop->SUBTRACT\n");}
      ;
-term: term mulop factor {printf("term->term mulop factor\n");}
-    | factor {printf("term ->factor\n");}
+term: factor termp {printf("term->factor termp\n");}
     ;
+
+termp: mulop factor termp {printf("termp->mulop factor termp\n");}
+     | %empty {printf("termp ->epsilon\n");}
+     ;
 mulop: MULTIPLY {printf("mulop->MULTIPLY\n");}
      | DIVISION {printf("mulop->DIVISION\n");}
      | MOD {printf("mulop->MOD\n");}
@@ -52,7 +66,6 @@ factor: L_PAREN equations R_PAREN {printf("factor->L_PAREN equations R_PAREN");}
       | IDENTIFIER {printf("factor->IDENTIFIER\n");}
       | function_call {printf("factor->function_call\n");}
       ;
-
 
 function_call: IDENTIFIER BEGIN_PARAM params END_PARAM {printf("function_call->IDENTIFIER BEGIN_PARAM params END_PARAM\n");}
              ;
@@ -67,28 +80,28 @@ param: IDENTIFIER {printf("param->IDENTIFIER\n");}
 if_start: IF BEGIN_PARAM if_check END_PARAM BEGIN_BODY statements END_BODY branch_check {printf("if_start->IF BEGIN_BODY if_check END_PARAM BEGIN_BODY statements END_BODY branch_check\n");}
         ;
 
-if_check: fin if_check' {printf("if_check->fin if_check'\n");}
-        | L_PAREN fin R_PAREN if_check' {printf("if_check-> L_PAREN fin R_PAREN if_check'\n");}
+if_check: fin if_checkp {printf("if_check->fin if_checkp\n");}
+        | L_PAREN fin R_PAREN if_checkp {printf("if_check-> L_PAREN fin R_PAREN if_checkp\n");}
         ;
 
-if_check': %empty {printf("if_check'->epsilon\n");}
-         | boolop fin if_check' {printf("if_check'->boolep fin if_check'\n");}
+if_checkp: %empty {printf("if_checkp->epsilon\n");}
+         | boolop fin if_checkp {printf("if_checkp->boolep fin if_checkp\n");}
          ;
 
 boolop: AND {printf("boolop->AND\n");}
       | OR {printf("boolop->OR\n");}
 
-fin: fin' compare {printf("fin->fin' compare\n");}
-   | L_PAREN fin' R_PAREN compare {printf("fin->L_PAREN fin' R_PAREN compare\n");}
+fin: finp compare {printf("fin->finp compare\n");}
+   | L_PAREN finp R_PAREN compare {printf("fin->L_PAREN finp R_PAREN compare\n");}
    ;
 
-compare: %empty {printf("empty'->epsilon\n");}
-       | compop fin' compare {printf("compare->compop fin' compare\n");}
+compare: %empty {printf("empty->epsilon\n");}
+       | compop finp compare {printf("compare->compop finp compare\n");}
        ;
 
-fin': INTEGER {printf("fin'->INTEGER'\n");}
-    | IDENT {printf("fin'->IDENT'\n");}
-    | function_call {printf("fin'->function_call\n");}
+finp: INTEGER {printf("finp->INTEGER\n");}
+    | IDENTIFIER {printf("finp->IDENTIFIER\n");}
+    | function_call {printf("finp->function_call\n");}
     ;
 
 compop: EQ {printf("compop->EQ\n");}
@@ -109,20 +122,21 @@ else_check: %empty {printf("else_check->epsilon\n");}
           ;
 
 until_loop: WHILE BEGIN_PARAM if_check END_PARAM BEGIN_BODY statements END_BODY {printf("until_loop->WHILE BEGIN_PARAM if_check END_PARAM BEGIN_BODY statements END_BODY\n");}
+          ;
 
 %%
-int main(int argc, char** argv)
-{
-    int i = 0;
-    argv++;
-    argc--;
-    if(argc > 0){
-        yyin = fopen( argv[0], "r");
+void main(int argc, char** argv) {
+    if(argc >= 2){
+        yyin = fopen(argv[1], "r");
+        if(yyin == NULL)
+            yyin = stdin;
     }else{
-        //printf("%d \n", i++);
         yyin = stdin;
     }
     yyparse();
-    
+}
 
+void yyerror(const char* s) {
+    fprintf(stderr, "Parse error: %s.[insert error message here]\n", s);
+    exit(1);
 }

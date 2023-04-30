@@ -1,2 +1,9 @@
+#The way this works is any files that are named 
+# or end in  .out for example are ignored
 *.out
 *lex.yy.c
+*y.tab.c
+*y.tab.h
+*lexer
+*parser
+*.output

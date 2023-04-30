@@ -1,18 +1,16 @@
 %{
-#include <stdio.h>
- #include "y.tab.h" 
-int col_num = 1;
+    #include <stdio.h>
+    #include "y.tab.h" 
+    #define YY_DECL int yylex()
+
+    int lineNumber = 1;
+    int col_num = 1;
 %}
 
 DIGIT [0-9]
 LETTER [a-zA-Z]
 
 %%
-%{
-int lineNumber = 1;
-%}
-
-
 " "    {col_num +=1;}
 "   "  {col_num +=4;}
 \t     {col_num+=4;}
@@ -33,8 +31,8 @@ int lineNumber = 1;
 "dne" { return NEQ; col_num+=3;}
 "gt" { return GT; col_num+=2; }
 "lt" { return LT; col_num+=2; }
-"and" { return AND; col_num+=3;}
-"or" { return OR; col_num+=2; }
+"AND" { return AND; col_num+=3;}
+"OR" { return OR; col_num+=2; }
 
 "[" { return BEGIN_BODY; col_num++;}
 "]" { return END_BODY; col_num+=1;}

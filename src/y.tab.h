@@ -78,7 +78,9 @@ extern int yydebug;
     SEMICOLON = 288,
     COMMA = 289,
     NUMBER = 290,
-    IDENTIFIER = 291
+    IDENTIFIER = 291,
+    AND = 292,
+    OR = 293
   };
 #endif
 
