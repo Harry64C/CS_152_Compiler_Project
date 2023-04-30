@@ -27,7 +27,7 @@ statement: declaration {printf("statement->declaration\n");}
          | assignment {printf("statement->assignment\n");}
          | function_call {printf("statement->function_call\n");}
          | if_start {printf("statement->if_start\n");}
-         | until_loop {printf("statement->untill_loop\n");}
+         | until_loop {printf("statement->until_loop\n");}
          ;
 declaration: INTEGER IDENTIFIER {printf("declaration-> INTEGER IDENTIFIER\n");}
            | INTEGER IDENTIFIER ASSIGN equations {printf("declaration ->INTEGER IDENTIFIER ASSIGN equations\n");}
