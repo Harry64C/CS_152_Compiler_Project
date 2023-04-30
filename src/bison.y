@@ -26,6 +26,8 @@ statements: %empty {printf("statements->epsilon\n");}
 statement: declaration {printf("statement->declaration\n");}
          | assignment {printf("statement->assignment\n");}
          | function_call {printf("statement->function_call\n");}
+         | if_start {printf("statement->if_start\n");}
+         | until_loop {printf("statement->untill_loop\n");}
          ;
 declaration: INTEGER IDENTIFIER {printf("declaration-> INTEGER IDENTIFIER\n");}
            | INTEGER IDENTIFIER ASSIGN equations {printf("declaration ->INTEGER IDENTIFIER ASSIGN equations\n");}
@@ -57,7 +59,6 @@ factor: L_PAREN equations R_PAREN {printf("factor->L_PAREN equations R_PAREN");}
       | IDENTIFIER {printf("factor->IDENTIFIER\n");}
       | function_call {printf("factor->function_call\n");}
       ;
-
 
 function_call: IDENTIFIER BEGIN_PARAM params END_PARAM {printf("function_call->IDENTIFIER BEGIN_PARAM params END_PARAM\n");}
              ;
@@ -92,7 +93,7 @@ compare: %empty {printf("empty->epsilon\n");}
        ;
 
 finp: INTEGER {printf("finp->INTEGER\n");}
-    | IDENT {printf("finp->IDENT\n");}
+    | IDENTIFIER {printf("finp->IDENTIFIER\n");}
     | function_call {printf("finp->function_call\n");}
     ;
 
@@ -114,6 +115,7 @@ else_check: %empty {printf("else_check->epsilon\n");}
           ;
 
 until_loop: WHILE BEGIN_PARAM if_check END_PARAM BEGIN_BODY statements END_BODY {printf("until_loop->WHILE BEGIN_PARAM if_check END_PARAM BEGIN_BODY statements END_BODY\n");}
+          ;
 
 %%
 int main(int argc, char** argv)
