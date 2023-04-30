@@ -33,8 +33,8 @@ int lineNumber = 1;
 "dne" { return NEQ; col_num+=3;}
 "gt" { return GT; col_num+=2; }
 "lt" { return LT; col_num+=2; }
-"and" { return AND; col_num+=3;}
-"or" { return OR; col_num+=2; }
+"AND" { return AND; col_num+=3;}
+"OR" { return OR; col_num+=2; }
 
 "[" { return BEGIN_BODY; col_num++;}
 "]" { return END_BODY; col_num+=1;}
