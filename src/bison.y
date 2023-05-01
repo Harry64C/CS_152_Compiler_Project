@@ -13,13 +13,13 @@
 %start prog_start
 
 %%
-prog_start: %empty {printf("prog_start->epsilon\n");}
-          | functions {printf("prog_start->functions\n");}
+prog_start: functions {printf("prog_start->functions\n");}
+          | %empty {printf("prog_start->epsilon\n");}
           ;
 functions: %empty {printf("functions->epsilon\n");}
          | function functions {printf("functions-> function functions\n");}
          ;
-function: INTEGER IDENTIFIER BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY {printf("function->INTEGER IDENTIFIER BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY\n");} 
+function: INTEGER FUNCTION IDENTIFIER BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY {printf("function->INTEGER FUNCTION IDENTIFIER BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY\n");} 
         ;
 arguments: argument {printf("arguments->arugment\n");}
          | argument COMMA arguments {printf("arguments ->argument arguments\n");}
@@ -30,17 +30,24 @@ argument: %empty {printf("argument->epsilon\n");}
 statements: %empty {printf("statements->epsilon\n");}
           | statement SEMICOLON statements {printf("statements->statement SEMICOLON statements\n");}
           ;
-statement: declaration {printf("statement->declaration\n");}
-         | assignment {printf("statement->assignment\n");}
-         | function_call {printf("statement->function_call\n");}
+statement: declaration SEMICOLON {printf("statement->declaration SEMICOLON\n");}
+         | assignment SEMICOLON {printf("statement->assignment SEMICOLON\n");}
+         | function_call SEMICOLON {printf("statement->function_call SEMICOLON\n");}
          | if_start {printf("statement->if_start\n");}
          | until_loop {printf("statement->until_loop\n");}
+         | BREAK SEMICOLON {printf("statement-> BREAK SEMICOLON\n");}
+         | WRITE BEGIN_PARAM equations END_PARAM SEMICOLON {printf("statement-> WRITE BEGIN_PARAM equations END_PARAM SEMICOLON");}
+         | READ BEGIN_PARAM END_PARAM SEMICOLON {printf("statement-> READ BEGIN_PARAM ENDPARAM SEMICOLON\n");}
+         | CONTINUE SEMICOLON {printf("statement-> CONTINUE SEMICOLON\n");}
+         | RETURN equations SEMICOLON {printf("statement-> RETURN equations SEMICOLON\n");}
          ;
 declaration: INTEGER IDENTIFIER {printf("declaration-> INTEGER IDENTIFIER\n");}
            | INTEGER IDENTIFIER ASSIGN equations {printf("declaration ->INTEGER IDENTIFIER ASSIGN equations\n");}
+           | arraycall {printf("declaration -> arraycall\n");}
            ;
 
 assignment: IDENTIFIER ASSIGN equations {printf("IDENTIFIER ASSIGN equations\n");}
+          | arraycall ASSIGN equations {printf("arraycall ASSIGN equations\n");}
           ;
 
 equations: term equationsp {printf("equations->term equationsp\n");}
@@ -64,8 +71,13 @@ mulop: MULTIPLY {printf("mulop->MULTIPLY\n");}
 factor: L_PAREN equations R_PAREN {printf("factor->L_PAREN equations R_PAREN");}
       | INTEGER {printf("factor ->INT\n");}
       | IDENTIFIER {printf("factor->IDENTIFIER\n");}
+      | NUMBER {printf("factor->NUMBER\n");}
+      | arraycall {printf("factor->arraycall\n");}
       | function_call {printf("factor->function_call\n");}
       ;
+arraycall: ARRAY L_PAREN INTEGER R_PAREN {printf("arraycall->ARRAY LPAREN INTEGER R_PAREN\n");}
+         | ARRAY L_PAREN R_PAREN {printf("arraycall->ARRAY LPAREN R_PAREN\n");}
+         ;
 
 function_call: IDENTIFIER BEGIN_PARAM params END_PARAM {printf("function_call->IDENTIFIER BEGIN_PARAM params END_PARAM\n");}
              ;
