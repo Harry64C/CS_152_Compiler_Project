@@ -17,7 +17,7 @@ LETTER [a-zA-Z]
 \n     {lineNumber++;col_num = 1;}
 "inum" { return INTEGER; col_num+=4;}
 "arr" { return ARRAY; col_num+=3;}
-"func" { return FUNCTION; col_num+=4;}
+"funct" { return FUNCTION; col_num+=4;}
 "~" { return ASSIGN; col_num+=1;}
 "plus" { return ADD; col_num+=4;}
 "minus" { return SUBTRACT; col_num+=5;}
