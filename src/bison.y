@@ -5,6 +5,9 @@
     extern int yylex();
     extern int yyparse();
     extern FILE* yyin;
+    extern int lineNumber;
+    extern int col_num;
+    extern char* yytext;
 
     void yyerror(const char* s);
 %}
@@ -15,8 +18,8 @@
 %%
 prog_start: functions {printf("prog_start->functions\n");}
           ;
-functions: %empty {printf("functions->epsilon\n");}
-         | function functions {printf("functions-> function functions\n");}
+functions: function functions {printf("functions-> function functions\n");}
+         | %empty {printf("functions->epsilon\n");}
          ;
 function: INTEGER FUNCTION IDENTIFIER BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY {printf("function->INTEGER FUNCTION IDENTIFIER BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY\n");} 
         ;
@@ -43,7 +46,7 @@ statement: declaration {printf("statement->declaration\n");}
 declaration: INTEGER IDENTIFIER {printf("declaration-> INTEGER IDENTIFIER\n");}
            | INTEGER IDENTIFIER ASSIGN equations {printf("declaration ->INTEGER IDENTIFIER ASSIGN equations\n");}
            | arraycall {printf("declaration -> arraycall\n");}
-           ;
+           ; 
 
 assignment: IDENTIFIER ASSIGN equations {printf("IDENTIFIER ASSIGN equations\n");}
           | arraycall ASSIGN equations {printf("arraycall ASSIGN equations\n");}
@@ -124,6 +127,6 @@ void main(int argc, char** argv) {
 }
 
 void yyerror(const char* s) {
-    fprintf(stderr, "Parse error: %s.[insert error message here]\n", s);
+    printf("Parse error: %s on line %d column %d, error %s\n", yytext, lineNumber, col_num, s   );
     exit(1);
 }
