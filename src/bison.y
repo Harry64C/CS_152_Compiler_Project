@@ -8,7 +8,6 @@
     extern int lineNumber;
     extern int col_num;
     extern char* yytext;
-
     void yyerror(const char* s);
 %}
 
@@ -46,7 +45,7 @@ statement: declaration {printf("statement->declaration\n");}
 declaration: INTEGER IDENTIFIER {printf("declaration-> INTEGER IDENTIFIER\n");}
            | INTEGER IDENTIFIER ASSIGN equations {printf("declaration ->INTEGER IDENTIFIER ASSIGN equations\n");}
            | arraycall {printf("declaration -> arraycall\n");}
-           ; 
+           ;
 
 assignment: IDENTIFIER ASSIGN equations {printf("IDENTIFIER ASSIGN equations\n");}
           | arraycall ASSIGN equations {printf("arraycall ASSIGN equations\n");}
@@ -128,5 +127,4 @@ void main(int argc, char** argv) {
 
 void yyerror(const char* s) {
     printf("Parse error: %s on line %d column %d, error %s\n", yytext, lineNumber, col_num, s   );
-    exit(1);
 }
