@@ -31,6 +31,7 @@ argument: %empty {printf("argument->epsilon\n");}
         ;
 statements: %empty {printf("statements->epsilon\n");}
           | statement SEMICOLON statements {printf("statements->statement SEMICOLON statements\n");}
+          | error SEMICOLON {yyerrok;}
           ;
 statement: declaration {printf("statement->declaration\n");}
          | assignment {printf("statement->assignment\n");}
@@ -44,8 +45,8 @@ statement: declaration {printf("statement->declaration\n");}
          | RETURN equations {printf("statement-> RETURN equations \n");}
          ;
 declaration: INTEGER IDENTIFIER {printf("declaration-> INTEGER IDENTIFIER\n");}
-
-           | INTEGER assignment {printf("declaration ->INTEGER assignment\n");}
+           | INTEGER IDENTIFIER ASSIGN equations {printf("declaration ->INTEGER IDENTIFIER ASSIGN equations\n");}
+           | arraycall {printf("declaration -> arraycall\n");}
            ;
 
 assignment: IDENTIFIER ASSIGN equations {printf("IDENTIFIER ASSIGN equations\n");}
@@ -102,43 +103,13 @@ param: IDENTIFIER {printf("param->IDENTIFIER\n");}
 if_start: IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY branch_check {printf("if_start->IF BEGIN_BODY if_check END_PARAM BEGIN_BODY statements END_BODY branch_check\n");}
         ;
 
-if_checkp: %empty {printf("if_checkp->epsilon\n");}
-         | boolop fin if_checkp {printf("if_checkp->boolep fin if_checkp\n");}
-         ;
 
-boolop: AND {printf("boolop->AND\n");}
-      | OR {printf("boolop->OR\n");}
-      ;
-
-fin: finp compare {printf("fin->finp compare\n");}
-   | L_PAREN finp R_PAREN compare {printf("fin->L_PAREN finp R_PAREN compare\n");}
-   ;
-
-compare: %empty {printf("empty->epsilon\n");}
-       | compop finp compare {printf("compare->compop finp compare\n");}
-       ;
-
-finp: INTEGER {printf("finp ->INT\n");}
-    | IDENTIFIER {printf("finp->IDENTIFIER\n");}
-    | function_call {printf("finp->function_call\n");}
-    ;
-
-compop: EQ {printf("compop->EQ\n");}
-      | GTE {printf("compop->GTE\n");}
-      | LTE {printf("compop->LTE\n");}
-      | NEQ {printf("compop->NEQ\n");}
-      | GT {printf("compop->GT\n");}
-      | LT {printf("compop->LT\n");}
-      ;
-
-branch_check: ELSE_IF BEGIN_PARAM if_check END_PARAM BEGIN_BODY statements END_BODY branch_check {printf("branch_check->ELSE_IF BEGIN_BODY if_check END_PARAM BEGIN_BODY statements END_BODY else_check\n");}
-
+branch_check: ELSE_IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY else_check {printf("branch_check->ELSE_IF BEGIN_BODY if_check END_PARAM BEGIN_BODY statements END_BODY else_check\n");}
             | else_check {printf("branch_check->else_check\n");}
             ;
 
 else_check: %empty {printf("else_check->epsilon\n");}
-
-          | ELSE BEGIN_PARAM if_check END_PARAM BEGIN_BODY statements END_BODY {printf("else_check->ELSE BEGIN_BODY if_check END_PARAM BEGIN_BODY statements END_BODY else_check\n");}
+          | ELSE BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY else_check {printf("else_check->ELSE BEGIN_BODY if_check END_PARAM BEGIN_BODY statements END_BODY else_check\n");}
           ;
 
 until_loop: WHILE BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY {printf("until_loop->WHILE BEGIN_PARAM if_check END_PARAM BEGIN_BODY statements END_BODY\n");}
@@ -158,5 +129,4 @@ void main(int argc, char** argv) {
 
 void yyerror(const char* s) {
     printf("Parse error: %s on line %d column %d, error %s\n", yytext, lineNumber, col_num, s   );
-    exit(1);
 }
