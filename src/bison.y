@@ -8,6 +8,7 @@
     extern int lineNumber;
     extern int col_num;
     extern char* yytext;
+    #define YYERROR_VERBOSE 1
 
     void yyerror(const char* s);
 %}
@@ -31,7 +32,7 @@ argument: %empty {printf("argument->epsilon\n");}
         ;
 statements: %empty {printf("statements->epsilon\n");}
           | statement SEMICOLON statements {printf("statements->statement SEMICOLON statements\n");}
-          | error SEMICOLON {yyerrok;}
+          | error SEMICOLON {}
           ;
 statement: declaration {printf("statement->declaration\n");}
          | assignment {printf("statement->assignment\n");}
@@ -109,7 +110,7 @@ branch_check: ELSE_IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_
             ;
 
 else_check: %empty {printf("else_check->epsilon\n");}
-          | ELSE BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY else_check {printf("else_check->ELSE BEGIN_BODY if_check END_PARAM BEGIN_BODY statements END_BODY else_check\n");}
+          | ELSE BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY {printf("else_check->ELSE BEGIN_BODY if_check END_PARAM BEGIN_BODY statements END_BODY\n");}
           ;
 
 until_loop: WHILE BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY {printf("until_loop->WHILE BEGIN_PARAM if_check END_PARAM BEGIN_BODY statements END_BODY\n");}
@@ -128,5 +129,8 @@ void main(int argc, char** argv) {
 }
 
 void yyerror(const char* s) {
-    printf("Parse error: %s on line %d column %d, error %s\n", yytext, lineNumber, col_num, s   );
+    extern char* yytext;
+
+    printf("Parse Error: %s, on line %d\n", s, lineNumber);
+    exit(1);
 }
