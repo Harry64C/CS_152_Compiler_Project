@@ -4,7 +4,7 @@ inum funct main{}[
   inum n;
   inum o;
 
-  n = system.inp{}
+  n ~ 5;
   check{n gte 100} [
     outp{n};
   ]
@@ -14,6 +14,7 @@ inum funct main{}[
     outp{m};
   ]
 
-outp{o};
-
+  outp{o};
+  
+  return 0;
 ]

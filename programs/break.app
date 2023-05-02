@@ -13,5 +13,5 @@ inum funct main{}
 		]
 		i ~ i plus i;
 	]
-	return 1;
+	return 0;
 ]
