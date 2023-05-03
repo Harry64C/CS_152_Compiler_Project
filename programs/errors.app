@@ -13,7 +13,7 @@ inum funct main{}
 	outp(_1n);
 	inum t = 5 % 2;
     # line 10 should be an invalid identifier error
-   # line 12 should also cause a symbol error;
+    # line 12 should also cause a symbol error;
 	x ~ 3;
     1n ~ 7;
     favoriteWord ~ multiply{x, 1n};
@@ -23,5 +23,5 @@ inum funct main{}
     z $ favoriteWord;
 	outp{z};
     	
-	return 1;
+	return 0;
 ]

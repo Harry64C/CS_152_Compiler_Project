@@ -1,4 +1,4 @@
-inum funct add{inum x, i num y}
+inum funct add{inum x, inum y}
 [
 	return x plus y;
 ]
