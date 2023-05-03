@@ -5,7 +5,7 @@ inum funct main{} [
 
     inum a;
 
-    a = 1 + 2 * 3;
+    a = 1 plus 2 mult 3;
     # Syntax error at line 8: "~" expected
 
     # syntax error: no return statement
