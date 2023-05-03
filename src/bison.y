@@ -40,21 +40,23 @@ statement: declaration {printf("statement -> declaration\n");}
          | function_call  {printf("statement -> function_call\n");}
          | BREAK  {printf("statement -> BREAK\n");}
          | WRITE BEGIN_PARAM equations END_PARAM {printf("statement -> WRITE BEGIN_PARAM equations END_PARAM\n");}
-         | readcall BEGIN_PARAM END_PARAM {printf("statement -> readcall BEGIN_PARAM ENDPARAM \n");}
          | CONTINUE {printf("statement -> CONTINUE\n");}
          | RETURN equations {printf("statement -> RETURN equations \n");}
          ;
 nonsemicolonstatement: if_start {printf("nonsemicolonstatement -> if_start\n");}
          | until_loop {printf("nonsemicolonstatement -> until_loop\n");}
          ;
+         
 declaration: INTEGER IDENTIFIER {printf("declaration-> INTEGER IDENTIFIER\n");}
            | INTEGER IDENTIFIER ASSIGN equations {printf("declaration ->INTEGER IDENTIFIER ASSIGN equations\n");}
-           | ARRAY arraycall {printf("declaration -> ARRAY arraycall\n");}
+           | ARRAY IDENTIFIER BEGIN_PARAM factor END_PARAM {printf("declaration -> ARRAY arraycall\n");}
+           | INTEGER IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM {printf("declaration-> INTEGER IDENTIFIER ASSIGN READ BEGIN_PARAM ENDPARAM \n");}
+           ;
 
-assignment: IDENTIFIER ASSIGN equations {printf("assignment -> IDENTIFIER ASSIGN equations\n");}
-          | arraycall ASSIGN equations {printf("assignment -> arraycall ASSIGN equations\n");}
-          ;
-
+assignment: IDENTIFIER ASSIGN equations {printf("IDENTIFIER ASSIGN equations\n");}
+          | function_call ASSIGN equations {printf("arraycall ASSIGN equations\n");}
+          | IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM {printf("assignment-> IDENTIFIER ASSIGN READ BEGIN_PARAM ENDPARAM \n");}
+          
 equations: term equationsp {printf("equations -> term equationsp\n");}
          ;
 equationsp: addop term equationsp {printf("equationsp -> addop term equationsp\n");}
@@ -81,30 +83,28 @@ mulop: MULTIPLY {printf("mulop -> MULTIPLY\n");}
      | AND {printf("mulop -> AND\n");}
      | OR {printf("mulop -> OR\n");}
      ;
-factor: L_PAREN equations R_PAREN {printf("factor -> L_PAREN equations R_PAREN");}
-      | INTEGER {printf("factor -> INTEGER\n");}
-      | IDENTIFIER {printf("factor -> IDENTIFIER\n");}
-      | NUMBER {printf("factor -> NUMBER\n");}
-      | arraycall {printf("factor -> arraycall\n");}
-      | function_call {printf("factor -> function_call\n");}
+     
+factor: L_PAREN equations R_PAREN {printf("factor->L_PAREN equations R_PAREN");}
+      | INTEGER {printf("factor ->INTEGER\n");}
+      | IDENTIFIER {printf("factor->IDENTIFIER\n");}
+      | NUMBER {printf("factor->NUMBER\n");}
+      | function_call {printf("factor->function_call\n");}
       ;
-arraycall: IDENTIFIER  L_PAREN INTEGER R_PAREN {printf("arraycall->IDENTIFIER LPAREN INTEGER R_PAREN\n");}
-         | IDENTIFIER L_PAREN R_PAREN {printf("arraycall->IDENTIFIER LPAREN R_PAREN\n");}
-         ;
+
 
 function_call: IDENTIFIER BEGIN_PARAM params END_PARAM {printf("function_call -> IDENTIFIER BEGIN_PARAM params END_PARAM\n");}
              ;
 
 readcall: IDENTIFIER DOT READ {printf("readcall -> IDENTIFIER DOT IDENTIFIER\n");}
              ;
-
-params: %empty {printf("params -> epsilon\n");}
-      | param {printf("params -> param\n");}
-      | param COMMA params {printf("params -> param COMMA params\n");}
+params: param {printf("params->param\n");}
+      | param COMMA params {printf("params-> param COMMA params\n");}
+      | %empty {printf("params->epsilon\n");}
       ;
-param: IDENTIFIER {printf("param -> IDENTIFIER\n");}
-     | INTEGER {printf("param -> INTEGER\n");}
-     ;
+
+param: IDENTIFIER {printf("param->IDENTIFIER\n");}
+     | NUMBER {printf("param->NUMBER\n");}
+
 
 if_start: IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY branch_check {printf("if_start -> IF BEGIN_BODY if_check END_PARAM BEGIN_BODY statements END_BODY branch_check\n");}
         ;
@@ -137,5 +137,4 @@ void yyerror(const char* s) {
     extern char* yytext;
 
     printf("Parse Error: %s, on line %d\n", s, lineNumber);
-    exit(1);
 }
