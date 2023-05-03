@@ -95,8 +95,6 @@ factor: L_PAREN equations R_PAREN {printf("factor->L_PAREN equations R_PAREN");}
 function_call: IDENTIFIER BEGIN_PARAM params END_PARAM {printf("function_call -> IDENTIFIER BEGIN_PARAM params END_PARAM\n");}
              ;
 
-readcall: IDENTIFIER DOT READ {printf("readcall -> IDENTIFIER DOT IDENTIFIER\n");}
-             ;
 params: param {printf("params->param\n");}
       | param COMMA params {printf("params-> param COMMA params\n");}
       | %empty {printf("params->epsilon\n");}
@@ -137,4 +135,5 @@ void yyerror(const char* s) {
     extern char* yytext;
 
     printf("Parse Error: %s, on line %d\n", s, lineNumber);
+    exit(1);
 }
