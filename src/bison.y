@@ -1,6 +1,8 @@
 %{
     #include <stdio.h>
-    #include <stdlib.h>
+    #include <string>
+    #include <vector>
+    #include <string.h>
 
     extern int yylex();
     extern int yyparse();
@@ -9,12 +11,43 @@
     extern int col_num;
     extern char* yytext;
     #define YYERROR_VERBOSE 1
-
     void yyerror(const char* s);
-%}
 
-%token INTEGER ARRAY FUNCTION ASSIGN ADD SUBTRACT MULTIPLY DIVISION MOD EQ GTE LTE NEQ GT LT BEGIN_BODY END_BODY BEGIN_PARAM END_PARAM L_PAREN R_PAREN IF ELSE ELSE_IF WHILE BREAK CONTINUE READ WRITE RETURN SEMICOLON COMMA NUMBER IDENTIFIER AND OR DOT
+    struct CodeNode {
+        std::string code;
+        std::string name;
+    };
+
+    enum Type { Integer, Array };
+
+    struct Symbol {
+        std::string name;
+        Type type;
+    };
+
+    struct Function {
+        std::string name;
+        std::vector<Symbol> declarations;
+    };
+
+    std::vector <Function> symbol_table;
+    // remember that Bison is a bottom up parser: that it parses leaf nodes first before parsing the parent nodes. So control flow begins at the leaf grammar nodes and propagates up to the parents.
+    Function *get_function() {
+        int last = symbol_table.size()-1;
+        if (last < 0) {
+            printf("***Error. Attempt to call get_function with an empty symbol table\n");
+            printf("Create a 'Function' object using 'add_function_to_symbol_table' before\n");
+            printf("calling 'find' or 'add_variable_to_symbol_table'");
+            exit(1);
+        }
+        return &symbol_table[last];
+    }
+    
+%}
+%define api.value.type union
 %start prog_start
+%token INTEGER ARRAY FUNCTION ASSIGN ADD SUBTRACT MULTIPLY DIVISION MOD EQ GTE LTE NEQ GT LT BEGIN_BODY END_BODY BEGIN_PARAM END_PARAM 
+%token L_PAREN R_PAREN IF ELSE ELSE_IF WHILE BREAK CONTINUE READ WRITE RETURN SEMICOLON COMMA AND OR DOT NUMBER IDENTIFIER
 
 %%
 prog_start: functions {printf("prog_start -> functions\n");}
@@ -22,19 +55,42 @@ prog_start: functions {printf("prog_start -> functions\n");}
 functions: function functions {printf("functions -> function functions\n");}
          | %empty {printf("functions -> epsilon\n");}
          ;
-function: INTEGER FUNCTION IDENTIFIER BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY {printf("function -> INTEGER FUNCTION IDENTIFIER BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY\n");} 
+function: INTEGER FUNCTION function_ident BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY {
+            printf("function -> INTEGER FUNCTION function_ident BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY\n");} 
         ;
+function_ident: IDENTIFIER {
+  // add the function to the symbol table.
+  //std::string func_name = $1;
+  //add_function_to_symbol_table(func_name);
+  //$$ = $1;
+  printf("function_ident -> IDENTIFIER\n");
+}
 arguments: argument {printf("arguments -> arugment\n");}
          | argument COMMA arguments {printf("arguments -> argument arguments\n");}
          ;
 argument: %empty {printf("argument -> epsilon\n");}
         | INTEGER IDENTIFIER {printf("argument -> INTEGER IDENTIFIER\n");}
         ;
-statements: %empty {printf("statements -> epsilon\n");}
-          | statement SEMICOLON statements {printf("statements -> statement SEMICOLON statements\n");}
-          | nonsemicolonstatement statements{printf("statements -> nonsemicolonstatement statements\n");}
-          | error SEMICOLON {}
-          ;
+
+statements: %empty {
+    printf("statements -> epsilon\n");
+    CodeNode* node = new CodeNode;
+    $$ = node;
+}
+        | statement SEMICOLON statements {
+    printf("statements -> statement SEMICOLON statements\n");
+    CodeNode* node = new CodeNode;
+    node->code = $1->code + $3->code;
+    $$ = node;
+}
+        | nonsemicolonstatement statements {
+    printf("statements -> nonsemicolonstatement statements\n");
+    CodeNode* node = new CodeNode;
+    node->code = $1->code + $2->code;
+    $$ = node;
+}
+        
+
 statement: declaration {printf("statement -> declaration\n");}
          | assignment {printf("statement -> assignment\n");}
          | function_call  {printf("statement -> function_call\n");}
@@ -119,8 +175,9 @@ else_check: %empty {printf("else_check -> epsilon\n");}
 until_loop: WHILE BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY {printf("until_loop -> WHILE BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY\n");}
           ;
 
+
 %%
-void main(int argc, char** argv) {
+int main(int argc, char** argv) {
     if(argc >= 2){
         yyin = fopen(argv[1], "r");
         if(yyin == NULL)
@@ -128,7 +185,7 @@ void main(int argc, char** argv) {
     }else{
         yyin = stdin;
     }
-    yyparse();
+    return yyparse();
 }
 
 void yyerror(const char* s) {
@@ -136,4 +193,25 @@ void yyerror(const char* s) {
 
     printf("Parse Error: %s, on line %d\n", s, lineNumber);
     exit(1);
+}
+
+bool has_main() {
+    bool TF = false;
+    for(int i = 0; i < symbol_table.size(); i++) {
+        Function *f = &symbol_table[i];
+        if (f->name == "main")
+            TF = true;
+    }
+    return TF;
+}
+
+std::string create_temp() {
+    static int num = 0;
+    std::string value = "_temp" + std::to_string(num);
+    num += 1;
+    return value;
+}
+
+std::string decl_temp_code(std::string &temp) {
+    return std::string(". ") + temp + std::string("\n");
 }
