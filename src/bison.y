@@ -3,6 +3,7 @@
     #include <string>
     #include <vector>
     #include <string.h>
+    #include <stdlib.h>
 
     extern int yylex();
     extern int yyparse();
@@ -44,25 +45,46 @@
     }
     
 %}
-%define api.value.type union
+
+%union {
+  char *op_val;
+}
 %start prog_start
 %token INTEGER ARRAY FUNCTION ASSIGN ADD SUBTRACT MULTIPLY DIVISION MOD EQ GTE LTE NEQ GT LT BEGIN_BODY END_BODY BEGIN_PARAM END_PARAM 
 %token L_PAREN R_PAREN IF ELSE ELSE_IF WHILE BREAK CONTINUE READ WRITE RETURN SEMICOLON COMMA AND OR DOT NUMBER IDENTIFIER
+%type <node> function
+%type <node> statement
+%type <node> statements
 
 %%
-prog_start: functions {printf("prog_start -> functions\n");}
-          ;
-functions: function functions {printf("functions -> function functions\n");}
-         | %empty {printf("functions -> epsilon\n");}
-         ;
+
+prog_start: functions { // this happens last
+    CodeNode* node = $1; // $1 means the leftmost of the rhs of the grammar
+    string code = node->code;
+    printf("generated code:\n);
+    printf("%s\n", code.c_str());
+}
+          
+functions: function functions {
+    printf("functions -> function functions\n");
+    
+    }
+         | %empty {
+            
+            printf("functions -> epsilon\n");
+    };
+         
+
 function: INTEGER FUNCTION function_ident BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY {
-            printf("function -> INTEGER FUNCTION function_ident BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY\n");} 
-        ;
+            printf("function -> INTEGER FUNCTION function_ident BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY\n");
+            string func_name = $2;
+    };
+        
 function_ident: IDENTIFIER {
   // add the function to the symbol table.
-  //std::string func_name = $1;
-  //add_function_to_symbol_table(func_name);
-  //$$ = $1;
+  std::string func_name = $1;
+  add_function_to_symbol_table(func_name);
+  $$ = $1;
   printf("function_ident -> IDENTIFIER\n");
 }
 arguments: argument {printf("arguments -> arugment\n");}
@@ -88,7 +110,7 @@ statements: %empty {
     CodeNode* node = new CodeNode;
     node->code = $1->code + $2->code;
     $$ = node;
-}
+};
         
 
 statement: declaration {printf("statement -> declaration\n");}
@@ -112,7 +134,7 @@ declaration: INTEGER IDENTIFIER {printf("declaration-> INTEGER IDENTIFIER\n");}
 assignment: IDENTIFIER ASSIGN equations {printf("IDENTIFIER ASSIGN equations\n");}
           | function_call ASSIGN equations {printf("arraycall ASSIGN equations\n");}
           | IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM {printf("assignment-> IDENTIFIER ASSIGN READ BEGIN_PARAM ENDPARAM \n");}
-          
+          // we will want assign to look like a := 
 equations: term equationsp {printf("equations -> term equationsp\n");}
          ;
 equationsp: addop term equationsp {printf("equationsp -> addop term equationsp\n");}
