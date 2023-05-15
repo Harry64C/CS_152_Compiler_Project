@@ -69,7 +69,7 @@ functions: function functions {
     CodeNode* func = $1;
     CodeNode* funcs = $2;
     std::string code = func->code + funcs->code;
-    COdeNode* node = new CodeNode;
+    CodeNode* node = new CodeNode;
     node->code = code;
     $$ = node;
     }
@@ -156,52 +156,67 @@ nonsemicolonstatement: if_start {printf("nonsemicolonstatement -> if_start\n");}
          | until_loop {printf("nonsemicolonstatement -> until_loop\n");}
          ;
          
-declaration: INTEGER IDENTIFIER {printf("declaration-> INTEGER IDENTIFIER\n");}
+declaration: INTEGER IDENTIFIER {std::string value = $2; 
+        Type t = Integer;
+        add_variable_to_symbol_table(value, t);
+        std::string code = std::string(". ") + value + std::string("\n");
+        CodeNode* node = new CodeNode;
+        node->code = code;
+        $$ = node;}
            | INTEGER IDENTIFIER ASSIGN equations {printf("declaration ->INTEGER IDENTIFIER ASSIGN equations\n");}
-           | ARRAY IDENTIFIER BEGIN_PARAM factor END_PARAM {printf("declaration -> ARRAY arraycall\n");}
+           | ARRAY IDENTIFIER BEGIN_PARAM factor END_PARAM {std::string name = $2;
+           CodeNode* n = $4;
+           std::string code = std::string(".[] ") + name + std::string(", ") + n->code;
+           CodeNode* node = new CodeNode;
+           node->code = code;
+           $$ =node;
+           }
            | INTEGER IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM {printf("declaration-> INTEGER IDENTIFIER ASSIGN READ BEGIN_PARAM ENDPARAM \n");}
            ;
 
-assignment: IDENTIFIER ASSIGN equations {printf("IDENTIFIER ASSIGN equations\n");}
+assignment: IDENTIFIER ASSIGN equations {std::string name = $1;
+                                        CodeNode* rhs = $3;
+                                        std::string code = std::string("= ") + name + std::string(", ") + rhs;
+                                        }
           | function_call ASSIGN equations {printf("arraycall ASSIGN equations\n");}
           | IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM {printf("assignment-> IDENTIFIER ASSIGN READ BEGIN_PARAM ENDPARAM \n");}
           // we will want assign to look like a := 
-equations: term equationsp {printf("equations -> term equationsp\n");}
+equations: term equationsp {CodeNode* t = $1; CodeNode* eqp = $2; std::string code = t->code + eqp->code; CodeNode* node = new CodeNode; node->code = code; $$ = node;}
          ;
-equationsp: addop term equationsp {printf("equationsp -> addop term equationsp\n");}
-	    | %empty {printf("equationsp -> epsilon\n");}
+equationsp: addop term equationsp {CodeNode* op = $1 CodeNode* t = $2; CodeNode * eqp = $3; std::string code = op->code + term->code + eqp->code; CodeNode* node = new CodeNode; node->code = code; $$ = node;}
+	    | %empty {CodeNode* node = new CodeNode; $$ = $1;}
 	    ;
-addop: ADD {printf("addop -> ADD\n");}
-     | SUBTRACT {printf("addop -> SUBTRACT\n");}
-     | EQ {printf("compop -> EQ\n");}
-     | GTE {printf("compop -> GTE\n");}
-     | LTE {printf("compop -> LTE\n");}
-     | NEQ {printf("compop -> NEQ\n");}
-     | GT {printf("compop -> GT\n");}
-     | LT {printf("compop -> LT\n");}
+addop: ADD {CodeNode* node = new CodeNode; node->code = std::string("+ "); $$ = node;}
+     | SUBTRACT {CodeNode* node = new CodeNode; node->code = std::string("- "); $$ = node;}
+     | EQ {CodeNode* node = new CodeNode; node->code = std::string("+ "); $$ = node;}
+     | GTE {CodeNode* node = new CodeNode; node->code = std::string(">= "); $$ = node;}
+     | LTE {CodeNode* node = new CodeNode; node->code = std::string("<= "); $$ = node;}
+     | NEQ {CodeNode* node = new CodeNode; node->code = std::string("!= "); $$ = node;}
+     | GT {CodeNode* node = new CodeNode; node->code = std::string("> "); $$ = node;}
+     | LT {CodeNode* node = new CodeNode; node->code = std::string("< "); $$ = node;}
      ;
-term: factor termp {printf("term -> factor termp\n");}
+term: factor termp {CodeNode* fact = $1; CodeNode* tp = $2; std::code = fact->code + tp->code; CodeNode* node = new CodeNode; node->code = code; $$ = node;}
     ;
 
-termp: mulop factor termp {printf("termp -> mulop factor termp\n");}
-     | %empty {printf("termp -> epsilon\n");}
+termp: mulop factor termp {CodeNode* op = $1; CodeNode fct = $2; CodeNode* tp = $3; std::string code = op->code + fct->code + tp->code; CodeNode* node = new CodeNode; node->code = code; $$ = node;}
+     | %empty {CodeNode* node = new CodeNode; $$ = $1;}
      ;
-mulop: MULTIPLY {printf("mulop -> MULTIPLY\n");}
-     | DIVISION {printf("mulop -> DIVISION\n");}
-     | MOD {printf("mulop -> MOD\n");}
-     | AND {printf("mulop -> AND\n");}
-     | OR {printf("mulop -> OR\n");}
+mulop: MULTIPLY {CodeNode* node = new CodeNode; node->code = std::string("* "); $$ = node;}
+     | DIVISION {CodeNode* node = new CodeNode; node->code = std::string("/ "); $$ = node;}
+     | MOD {CodeNode* node = new CodeNode; node->code = std::string("% "); $$ = node;}
+     | AND {CodeNode* node = new CodeNode; node->code = std::string("&& "); $$ = node;}
+     | OR {CodeNode* node = new CodeNode; node->code = std::string("|| "); $$ = node;}
      ;
      
-factor: L_PAREN equations R_PAREN {printf("factor->L_PAREN equations R_PAREN");}
-      | INTEGER {printf("factor ->INTEGER\n");}
-      | IDENTIFIER {printf("factor->IDENTIFIER\n");}
-      | NUMBER {printf("factor->NUMBER\n");}
-      | function_call {printf("factor->function_call\n");}
+factor: L_PAREN equations R_PAREN {}
+      | INTEGER {CodeNode* node = new CodeNode; node -> code = $1; $$ = node;}
+      | IDENTIFIER {CodeNode* node = new CodeNode; node->code = $1; $$ = node;}
+      | NUMBER {CodeNode* node = new CodeNode; node->code = $1; $$ = node;}
+      | function_call {CodeNode* node = new CodeNode; node->code = $1->code; $$ = node;}
       ;
 
 
-function_call: IDENTIFIER BEGIN_PARAM params END_PARAM {printf("function_call -> IDENTIFIER BEGIN_PARAM params END_PARAM\n");}
+function_call: IDENTIFIER BEGIN_PARAM params END_PARAM {}
              ;
 
 params: param {printf("params->param\n");}
