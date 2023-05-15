@@ -66,18 +66,31 @@ prog_start: functions { // this happens last
 }
           
 functions: function functions {
-    printf("functions -> function functions\n");
-    
+    CodeNode* func = $1;
+    CodeNode* funcs = $2;
+    std::string code = func->code + funcs->code;
+    COdeNode* node = new CodeNode;
+    node->code = code;
+    $$ = node;
     }
          | %empty {
-            
-            printf("functions -> epsilon\n");
+            CodeNode *node = new CodeNode;
+            $$ = node;
     };
          
 
 function: INTEGER FUNCTION function_ident BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY {
             printf("function -> INTEGER FUNCTION function_ident BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY\n");
-            string func_name = $2;
+            std::string func_name = $3;
+            std::string param = $5;
+            std::string body = $8;
+            std::string code = std::string("func ") + func_name + std::string("\n");
+            code += param->code;
+            code += body->code;
+            code +=std::string("endfunc\n");
+            CodeNode *node = new CodeNode;
+            node->code = code;
+            $$ = node;
     };
         
 function_ident: IDENTIFIER {
@@ -86,12 +99,30 @@ function_ident: IDENTIFIER {
   add_function_to_symbol_table(func_name);
   $$ = $1;
   printf("function_ident -> IDENTIFIER\n");
-}
-arguments: argument {printf("arguments -> arugment\n");}
-         | argument COMMA arguments {printf("arguments -> argument arguments\n");}
+};
+arguments: argument { CodeNode* arg = $1;
+        std::string code = arg->code;
+        CodeNode *node = new CodeNode;
+        node->code = code;
+        $$ = node;}
+         | argument COMMA arguments { CodeNode*  arg = $1;
+         CodeNode* args = $3;
+         std::string code = arg->code + args->code;
+         CodeNode *node = new CodeNode;
+         node->code = code;
+         $$ = node;
+         }
          ;
-argument: %empty {printf("argument -> epsilon\n");}
-        | INTEGER IDENTIFIER {printf("argument -> INTEGER IDENTIFIER\n");}
+argument: %empty {CodeNode *node = new CodeNode;
+   $$ = node;}
+        | INTEGER IDENTIFIER {std::string value = $2; 
+        Type t = Integer;
+        add_variable_to_symbol_table(value, t);
+        std::string code = std::string(". ") + value + std::string("\n");
+        CodeNode* node = new CodeNode;
+        node->code = code;
+        $$ = node;
+        }
         ;
 
 statements: %empty {
@@ -113,10 +144,10 @@ statements: %empty {
 };
         
 
-statement: declaration {printf("statement -> declaration\n");}
-         | assignment {printf("statement -> assignment\n");}
-         | function_call  {printf("statement -> function_call\n");}
-         | BREAK  {printf("statement -> BREAK\n");}
+statement: declaration {CodeNode* decl = $1; std::string code = decl->code; CodeNode* node = new CodeNode; node->code = code; $$ = node;}
+         | assignment {CodeNode* node = new CodeNode; node->code = $1->code; $$ = node;}
+         | function_call  {CodeNode* fcall = $1; std::string code = fcall->code; CodeNode* node = new CodeNode; node->code = code; $$ = node;}
+         | BREAK  {}
          | WRITE BEGIN_PARAM equations END_PARAM {printf("statement -> WRITE BEGIN_PARAM equations END_PARAM\n");}
          | CONTINUE {printf("statement -> CONTINUE\n");}
          | RETURN equations {printf("statement -> RETURN equations \n");}
