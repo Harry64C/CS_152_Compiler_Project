@@ -61,7 +61,7 @@
 prog_start: functions { // this happens last
     CodeNode* node = $1; // $1 means the leftmost of the rhs of the grammar
     string code = node->code;
-    printf("generated code:\n);
+    printf("generated code:\n");
     printf("%s\n", code.c_str());
 }
           
@@ -164,7 +164,7 @@ declaration: INTEGER IDENTIFIER {std::string value = $2;
         node->code = code;
         $$ = node;}
            | INTEGER IDENTIFIER ASSIGN equations {printf("declaration ->INTEGER IDENTIFIER ASSIGN equations\n");}
-           | ARRAY IDENTIFIER BEGIN_PARAM factor END_PARAM {std::string name = $2;
+           | ARRAY IDENTIFIER L_PAREN factor R_PAREN {std::string name = $2;
            CodeNode* n = $4;
            std::string code = std::string(".[] ") + name + std::string(", ") + n->code;
            CodeNode* node = new CodeNode;
@@ -178,9 +178,11 @@ assignment: IDENTIFIER ASSIGN equations {std::string name = $1;
                                         CodeNode* rhs = $3;
                                         std::string code = std::string("= ") + name + std::string(", ") + rhs;
                                         }
-          | function_call ASSIGN equations {printf("arraycall ASSIGN equations\n");}
+          | arraycall ASSIGN equations {printf("arraycall ASSIGN equations\n");}
           | IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM {printf("assignment-> IDENTIFIER ASSIGN READ BEGIN_PARAM ENDPARAM \n");}
           // we will want assign to look like a := 
+arraycall: IDENTIFIER L_PAREN param R_PAREN {}
+         ;
 equations: term equationsp {CodeNode* t = $1; CodeNode* eqp = $2; std::string code = t->code + eqp->code; CodeNode* node = new CodeNode; node->code = code; $$ = node;}
          ;
 equationsp: addop term equationsp {CodeNode* op = $1 CodeNode* t = $2; CodeNode * eqp = $3; std::string code = op->code + term->code + eqp->code; CodeNode* node = new CodeNode; node->code = code; $$ = node;}
@@ -224,7 +226,7 @@ params: param {printf("params->param\n");}
       | %empty {printf("params->epsilon\n");}
       ;
 
-param: IDENTIFIER {printf("param->IDENTIFIER\n");}
+param: IDENTIFIER {}
      | NUMBER {printf("param->NUMBER\n");}
 
 
