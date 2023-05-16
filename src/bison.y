@@ -14,11 +14,6 @@
     #define YYERROR_VERBOSE 1
     void yyerror(const char* s);
 
-    struct CodeNode {
-        std::string code;
-        std::string name;
-    };
-
     enum Type { Integer, Array };
 
     struct Symbol {
@@ -43,24 +38,106 @@
         }
         return &symbol_table[last];
     }
+
+    // find a particular variable using the symbol table.
+    // grab the most recent function, and linear search to
+    // find the symbol you are looking for.
+    // you may want to extend "find" to handle different types of "Integer" vs "Array"
+    bool find(std::string &value) {
+    Function *f = get_function();
+    for(int i=0; i < f->declarations.size(); i++) {
+        Symbol *s = &f->declarations[i];
+        if (s->name == value) {
+        return true;
+        }
+    }
+    return false;
+    }
+
+    // when you see a function declaration inside the grammar, add
+    // the function name to the symbol table
+    void add_function_to_symbol_table(std::string &value) {
+    Function f; 
+    f.name = value; 
+    symbol_table.push_back(f);
+    }
+
+    // when you see a symbol declaration inside the grammar, add
+    // the symbol name as well as some type information to the symbol table
+    void add_variable_to_symbol_table(std::string &value, Type t) {
+    Symbol s;
+    s.name = value;
+    s.type = t;
+    Function *f = get_function();
+    f->declarations.push_back(s);
+    }
+
+    // a function to print out the symbol table to the screen
+    // largely for debugging purposes.
+    void print_symbol_table(void) {
+    printf("symbol table:\n");
+    printf("--------------------\n");
+    for(int i=0; i<symbol_table.size(); i++) {
+        printf("function: %s\n", symbol_table[i].name.c_str());
+        for(int j=0; j<symbol_table[i].declarations.size(); j++) {
+        printf("  locals: %s\n", symbol_table[i].declarations[j].name.c_str());
+        }
+    }
+    printf("--------------------\n");
+    }
+
+    struct CodeNode {
+        std::string code; // generated code as a string.
+        std::string name;
+    };
     
 %}
 
 %union {
   char *op_val;
+  struct CodeNode *node;
 }
 %start prog_start
 %token INTEGER ARRAY FUNCTION ASSIGN ADD SUBTRACT MULTIPLY DIVISION MOD EQ GTE LTE NEQ GT LT BEGIN_BODY END_BODY BEGIN_PARAM END_PARAM 
-%token L_PAREN R_PAREN IF ELSE ELSE_IF WHILE BREAK CONTINUE READ WRITE RETURN SEMICOLON COMMA AND OR DOT NUMBER IDENTIFIER
-%type <node> function
-%type <node> statement
-%type <node> statements
+%token L_PAREN R_PAREN IF ELSE ELSE_IF WHILE BREAK CONTINUE READ WRITE RETURN SEMICOLON COMMA AND OR DOT 
+%token <op_val> NUMBER 
+%token <op_val> IDENTIFIER
+//%type  <op_val> symbol 
+%type  <op_val> function_ident
+%type  <node>   functions
+%type  <node>   function
+//%type  <node>   declarations
+%type  <node>   declaration
+%type  <node>   statements
+%type  <node>   statement
+
+%type  <node>   argument
+%type  <node>   arguments
+%type  <node>   nonsemicolonstatement
+%type  <node>   equations
+%type  <node>   equationsp
+%type  <node>   assignment
+%type  <node>   function_call
+%type  <node>   arraycall
+%type  <node>   addop
+%type  <node>   term
+%type  <node>   termp
+%type  <node>   mulop
+%type  <node>   factor
+%type  <node>   param
+%type  <node>   params
+
+%type  <node>   if_start
+%type  <node>   branch_check
+%type  <node>   else_check
+%type  <node>   until_loop
+
 
 %%
 
 prog_start: functions { // this happens last
     CodeNode* node = $1; // $1 means the leftmost of the rhs of the grammar
-    string code = node->code;
+    std::string code = node->code;
     printf("generated code:\n");
     printf("%s\n", code.c_str());
 }
@@ -82,8 +159,8 @@ functions: function functions {
 function: INTEGER FUNCTION function_ident BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY {
             printf("function -> INTEGER FUNCTION function_ident BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY\n");
             std::string func_name = $3;
-            std::string param = $5;
-            std::string body = $8;
+            CodeNode* param = $5;
+            CodeNode* body = $8;
             std::string code = std::string("func ") + func_name + std::string("\n");
             code += param->code;
             code += body->code;
@@ -176,17 +253,24 @@ declaration: INTEGER IDENTIFIER {std::string value = $2;
 
 assignment: IDENTIFIER ASSIGN equations {std::string name = $1;
                                         CodeNode* rhs = $3;
-                                        std::string code = std::string("= ") + name + std::string(", ") + rhs;
+                                        std::string code = std::string("= ") + name + std::string(", ") + rhs->code;
                                         }
           | arraycall ASSIGN equations {printf("arraycall ASSIGN equations\n");}
           | IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM {printf("assignment-> IDENTIFIER ASSIGN READ BEGIN_PARAM ENDPARAM \n");}
-          // we will want assign to look like a := 
 arraycall: IDENTIFIER L_PAREN param R_PAREN {}
          ;
 equations: term equationsp {CodeNode* t = $1; CodeNode* eqp = $2; std::string code = t->code + eqp->code; CodeNode* node = new CodeNode; node->code = code; $$ = node;}
          ;
-equationsp: addop term equationsp {CodeNode* op = $1 CodeNode* t = $2; CodeNode * eqp = $3; std::string code = op->code + term->code + eqp->code; CodeNode* node = new CodeNode; node->code = code; $$ = node;}
-	    | %empty {CodeNode* node = new CodeNode; $$ = $1;}
+equationsp: addop term equationsp {
+    CodeNode* op = $1;
+    CodeNode* t = $2; 
+    CodeNode* eqp = $3; 
+    std::string code = op->code + t->code + eqp->code; 
+    CodeNode* node = new CodeNode; 
+    node->code = code; 
+    $$ = node;
+}
+	    | %empty {CodeNode* node = new CodeNode; $$ = node;}
 	    ;
 addop: ADD {CodeNode* node = new CodeNode; node->code = std::string("+ "); $$ = node;}
      | SUBTRACT {CodeNode* node = new CodeNode; node->code = std::string("- "); $$ = node;}
@@ -197,12 +281,29 @@ addop: ADD {CodeNode* node = new CodeNode; node->code = std::string("+ "); $$ = 
      | GT {CodeNode* node = new CodeNode; node->code = std::string("> "); $$ = node;}
      | LT {CodeNode* node = new CodeNode; node->code = std::string("< "); $$ = node;}
      ;
-term: factor termp {CodeNode* fact = $1; CodeNode* tp = $2; std::code = fact->code + tp->code; CodeNode* node = new CodeNode; node->code = code; $$ = node;}
+
+term: factor termp {
+    CodeNode* fact = $1; 
+    CodeNode* tp = $2; 
+    std::string code = fact->code + tp->code; 
+    CodeNode* node = new CodeNode; 
+    node->code = code; 
+    $$ = node;
+}
     ;
 
-termp: mulop factor termp {CodeNode* op = $1; CodeNode fct = $2; CodeNode* tp = $3; std::string code = op->code + fct->code + tp->code; CodeNode* node = new CodeNode; node->code = code; $$ = node;}
-     | %empty {CodeNode* node = new CodeNode; $$ = $1;}
+termp: mulop factor termp {
+    CodeNode* op = $1; 
+    CodeNode* fct = $2; 
+    CodeNode* tp = $3; 
+    std::string code = op->code + fct->code + tp->code; 
+    CodeNode* node = new CodeNode; 
+    node->code = code; 
+    $$ = node;
+}
+     | %empty {CodeNode* node = new CodeNode; $$ = node;}
      ;
+
 mulop: MULTIPLY {CodeNode* node = new CodeNode; node->code = std::string("* "); $$ = node;}
      | DIVISION {CodeNode* node = new CodeNode; node->code = std::string("/ "); $$ = node;}
      | MOD {CodeNode* node = new CodeNode; node->code = std::string("% "); $$ = node;}
@@ -210,13 +311,19 @@ mulop: MULTIPLY {CodeNode* node = new CodeNode; node->code = std::string("* "); 
      | OR {CodeNode* node = new CodeNode; node->code = std::string("|| "); $$ = node;}
      ;
      
-factor: L_PAREN equations R_PAREN {}
-      | INTEGER {CodeNode* node = new CodeNode; node -> code = $1; $$ = node;}
+factor: L_PAREN equations R_PAREN {
+    CodeNode* eq = $2;
+    std::string code = std::string("(") + eq->code + std::string(")");
+
+    CodeNode *node = new CodeNode;
+    node->code = code;
+    $$ = node;
+}
+      | INTEGER {CodeNode* node = new CodeNode; $$ = node;}
       | IDENTIFIER {CodeNode* node = new CodeNode; node->code = $1; $$ = node;}
       | NUMBER {CodeNode* node = new CodeNode; node->code = $1; $$ = node;}
       | function_call {CodeNode* node = new CodeNode; node->code = $1->code; $$ = node;}
       ;
-
 
 function_call: IDENTIFIER BEGIN_PARAM params END_PARAM {}
              ;
@@ -275,12 +382,13 @@ bool has_main() {
     return TF;
 }
 
+/*
 std::string create_temp() {
     static int num = 0;
     std::string value = "_temp" + std::to_string(num);
     num += 1;
     return value;
-}
+} */
 
 std::string decl_temp_code(std::string &temp) {
     return std::string(". ") + temp + std::string("\n");
