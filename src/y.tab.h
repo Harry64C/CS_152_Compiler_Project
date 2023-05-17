@@ -77,16 +77,28 @@ extern int yydebug;
     RETURN = 287,
     SEMICOLON = 288,
     COMMA = 289,
-    NUMBER = 290,
-    IDENTIFIER = 291,
-    AND = 292,
-    OR = 293
+    AND = 290,
+    OR = 291,
+    DOT = 292,
+    NUMBER = 293,
+    IDENTIFIER = 294
   };
 #endif
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+
+union YYSTYPE
+{
+#line 96 "bison.y" /* yacc.c:1909  */
+
+  char *op_val;
+  struct CodeNode *node;
+
+#line 99 "y.tab.h" /* yacc.c:1909  */
+};
+
+typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif
