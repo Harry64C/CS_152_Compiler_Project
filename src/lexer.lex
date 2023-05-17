@@ -1,8 +1,13 @@
+%option noyywrap
 %{
+   #include<string.h>
     #include <stdio.h>
     #include "y.tab.h" 
     #define YY_DECL int yylex()
-
+    int currLine = 1, currPos = 1;
+   
+    extern char *identToken;
+    extern int numberToken;
     int lineNumber = 1;
     int col_num = 1;
 %}
@@ -55,8 +60,18 @@ LETTER [a-zA-Z]
 "," { return COMMA ; col_num++;}
 "#".* {}
 {DIGIT}+ { return NUMBER; col_num += yyleng;}
-{LETTER}+ { return IDENTIFIER; col_num+= yyleng;}
-[a-zA-Z]+[_0-9a-zA-Z]*[0-9a-zA-Z] {return IDENTIFIER; col_num+=yyleng;}
+{LETTER}+ { currPos += yyleng;
+   char * token = new char[yyleng];
+   strcpy(token, yytext);
+   yylval.op_val = token;
+    col_num+= yyleng;
+   identToken = yytext; return IDENTIFIER;}
+[a-zA-Z]+[_0-9a-zA-Z]*[0-9a-zA-Z] {currPos += yyleng;
+   char* token = new char[yyleng];
+   strcpy(token, yytext);
+   yylval.op_val = token;
+   col_num+=yyleng;
+   identToken = yytext; return IDENTIFIER;}
 [_][_0-9a-zA-Z]* {printf("**Error. IDENTIFIER: '%s' on line '%d' column '%d'. Identifiers cannot start with '_' \n", yytext, lineNumber, col_num); col_num += yyleng;}
 [a-zA-Z]+[_0-9a-zA-Z]*[_] {printf("**Error. IDENTIFIER: '%s' on line '%d' column '%d'. Identifiers cannot end in '_' \n", yytext, lineNumber, col_num);col_num += yyleng;}
 [0-9]+[a-zA-Z][0-9a-zA-Z]* {printf("**Error. IDENTIFIER: '%s' on line '%d' column '%d'. Identifiers cannot start with a number\n", yytext, lineNumber, col_num);col_num += yyleng;}

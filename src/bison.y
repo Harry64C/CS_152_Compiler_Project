@@ -10,6 +10,8 @@
     extern FILE* yyin;
     extern int lineNumber;
     extern int col_num;
+    char *identToken;
+    int numberToken;
     extern char* yytext;
     #define YYERROR_VERBOSE 1
     void yyerror(const char* s);
@@ -171,11 +173,10 @@ function: INTEGER FUNCTION function_ident BEGIN_PARAM arguments END_PARAM BEGIN_
     };
         
 function_ident: IDENTIFIER {
-  // add the function to the symbol table.
+    // add the function to the symbol table.
   std::string func_name = $1;
   add_function_to_symbol_table(func_name);
   $$ = $1;
-  printf("function_ident -> IDENTIFIER\n");
 };
 arguments: argument { CodeNode* arg = $1;
         std::string code = arg->code;
