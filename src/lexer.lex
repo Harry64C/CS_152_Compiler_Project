@@ -59,19 +59,32 @@ LETTER [a-zA-Z]
 ";" { return SEMICOLON ; col_num++;}
 "," { return COMMA ; col_num++;}
 "#".* {}
-{DIGIT}+ { return NUMBER; col_num += yyleng;}
+
+{DIGIT}+ { 
+   col_num += yyleng;
+   char * token = new char[yyleng];
+   strcpy(token, yytext);
+   yylval.op_val = token;
+   numberToken = atoi(yytext); 
+   return NUMBER; 
+}
 {LETTER}+ { currPos += yyleng;
    char * token = new char[yyleng];
    strcpy(token, yytext);
    yylval.op_val = token;
-    col_num+= yyleng;
-   identToken = yytext; return IDENTIFIER;}
-[a-zA-Z]+[_0-9a-zA-Z]*[0-9a-zA-Z] {currPos += yyleng;
+   col_num+= yyleng;
+   identToken = yytext; 
+   return IDENTIFIER; 
+}
+({LETTER})|({LETTER}({LETTER}|{DIGIT}|"_")*({LETTER}|{DIGIT})) {
+   currPos += yyleng;
    char* token = new char[yyleng];
    strcpy(token, yytext);
    yylval.op_val = token;
    col_num+=yyleng;
-   identToken = yytext; return IDENTIFIER;}
+   identToken = yytext; 
+   return IDENTIFIER;
+}
 [_][_0-9a-zA-Z]* {printf("**Error. IDENTIFIER: '%s' on line '%d' column '%d'. Identifiers cannot start with '_' \n", yytext, lineNumber, col_num); col_num += yyleng;}
 [a-zA-Z]+[_0-9a-zA-Z]*[_] {printf("**Error. IDENTIFIER: '%s' on line '%d' column '%d'. Identifiers cannot end in '_' \n", yytext, lineNumber, col_num);col_num += yyleng;}
 [0-9]+[a-zA-Z][0-9a-zA-Z]* {printf("**Error. IDENTIFIER: '%s' on line '%d' column '%d'. Identifiers cannot start with a number\n", yytext, lineNumber, col_num);col_num += yyleng;}

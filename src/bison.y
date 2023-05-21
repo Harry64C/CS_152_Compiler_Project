@@ -138,13 +138,15 @@
 %%
 
 prog_start: functions { // this happens last
+    printf("prog_start -> functions\n");
     CodeNode* node = $1; // $1 means the leftmost of the rhs of the grammar
     std::string code = node->code;
-    printf("generated code:\n");
+    printf("\ngenerated code:\n");
     printf("%s\n", code.c_str());
 }
           
 functions: function functions {
+    printf("prog_start -> function functions\n");
     CodeNode* func = $1;
     CodeNode* funcs = $2;
     std::string code = func->code + funcs->code;
@@ -174,25 +176,29 @@ function: INTEGER FUNCTION function_ident BEGIN_PARAM arguments END_PARAM BEGIN_
         
 function_ident: IDENTIFIER {
     // add the function to the symbol table.
-  std::string func_name = $1;
-  add_function_to_symbol_table(func_name);
-  $$ = $1;
+    std::string func_name = $1;
+    add_function_to_symbol_table(func_name);
+    $$ = $1;
 };
+
 arguments: argument { CodeNode* arg = $1;
         std::string code = arg->code;
         CodeNode *node = new CodeNode;
         node->code = code;
-        $$ = node;}
+        $$ = node;
+}
          | argument COMMA arguments { CodeNode*  arg = $1;
          CodeNode* args = $3;
          std::string code = arg->code + args->code;
          CodeNode *node = new CodeNode;
          node->code = code;
          $$ = node;
-         }
-         ;
-argument: %empty {CodeNode *node = new CodeNode;
-   $$ = node;}
+};
+
+argument: %empty {
+    CodeNode *node = new CodeNode;
+    $$ = node;
+}
         | INTEGER IDENTIFIER {std::string value = $2; 
         Type t = Integer;
         add_variable_to_symbol_table(value, t);
@@ -200,8 +206,7 @@ argument: %empty {CodeNode *node = new CodeNode;
         CodeNode* node = new CodeNode;
         node->code = code;
         $$ = node;
-        }
-        ;
+};
 
 statements: %empty {
     printf("statements -> epsilon\n");
@@ -222,46 +227,97 @@ statements: %empty {
 };
         
 
-statement: declaration {CodeNode* decl = $1; std::string code = decl->code; CodeNode* node = new CodeNode; node->code = code; $$ = node;}
-         | assignment {CodeNode* node = new CodeNode; node->code = $1->code; $$ = node;}
-         | function_call  {CodeNode* fcall = $1; std::string code = fcall->code; CodeNode* node = new CodeNode; node->code = code; $$ = node;}
+statement: declaration {
+    printf("statement -> declaration\n");
+    CodeNode* decl = $1; 
+    std::string code = decl->code; 
+    CodeNode* node = new CodeNode; 
+    node->code = code; 
+    $$ = node;
+}
+         | assignment {$$ = $1;}
+         | function_call  {$$ = $1;}
          | BREAK  {}
          | WRITE BEGIN_PARAM equations END_PARAM {printf("statement -> WRITE BEGIN_PARAM equations END_PARAM\n");}
          | CONTINUE {printf("statement -> CONTINUE\n");}
          | RETURN equations {printf("statement -> RETURN equations \n");}
          ;
-nonsemicolonstatement: if_start {printf("nonsemicolonstatement -> if_start\n");}
-         | until_loop {printf("nonsemicolonstatement -> until_loop\n");}
-         ;
+
+nonsemicolonstatement: if_start {
+    printf("nonsemicolonstatement -> if_start\n");
+    $$ = $1;
+}
+         | until_loop {
+            printf("nonsemicolonstatement -> until_loop\n");
+            $$ = $1;
+};
          
-declaration: INTEGER IDENTIFIER {std::string value = $2; 
+declaration: INTEGER IDENTIFIER {
+        printf("declaration -> INTEGER IDENTIFIER\n");
+        std::string value = $2; 
         Type t = Integer;
         add_variable_to_symbol_table(value, t);
         std::string code = std::string(". ") + value + std::string("\n");
         CodeNode* node = new CodeNode;
         node->code = code;
-        $$ = node;}
-           | INTEGER IDENTIFIER ASSIGN equations {printf("declaration ->INTEGER IDENTIFIER ASSIGN equations\n");}
-           | ARRAY IDENTIFIER L_PAREN factor R_PAREN {std::string name = $2;
-           CodeNode* n = $4;
-           std::string code = std::string(".[] ") + name + std::string(", ") + n->code;
-           CodeNode* node = new CodeNode;
-           node->code = code;
-           $$ =node;
-           }
-           | INTEGER IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM {printf("declaration-> INTEGER IDENTIFIER ASSIGN READ BEGIN_PARAM ENDPARAM \n");}
+        $$ = node;
+}
+           | INTEGER IDENTIFIER ASSIGN equations {
+        printf("declaration -> INTEGER IDENTIFIER ASSIGN equations\n");
+        std::string value = $2; 
+        Type t = Integer;
+        add_variable_to_symbol_table(value, t);
+        std::string code = std::string(". ") + value + std::string("\n");
+        code += std::string("= ") + value + $4->code;
+        CodeNode* node = new CodeNode;
+        node->code = code;
+        $$ = node;
+}
+           | ARRAY IDENTIFIER L_PAREN factor R_PAREN {
+        std::string name = $2;
+        CodeNode* n = $4;
+        std::string code = std::string(".[] ") + name + std::string(", ") + n->code;
+        CodeNode* node = new CodeNode;
+        node->code = code;
+        $$ =node;
+}
+           | INTEGER IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM {
+        printf("declaration-> INTEGER IDENTIFIER ASSIGN READ BEGIN_PARAM ENDPARAM \n");
+        // not needed for now because we dont take input
+        
+}
            ;
 
-assignment: IDENTIFIER ASSIGN equations {std::string name = $1;
-                                        CodeNode* rhs = $3;
-                                        std::string code = std::string("= ") + name + std::string(", ") + rhs->code;
-                                        }
-          | arraycall ASSIGN equations {printf("arraycall ASSIGN equations\n");}
-          | IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM {printf("assignment-> IDENTIFIER ASSIGN READ BEGIN_PARAM ENDPARAM \n");}
+assignment: IDENTIFIER ASSIGN equations {
+        std::string name = $1;
+        //std::string error;
+        //if (!find(name, Integer, error)) {
+        //    yyerror(error.c_str());
+        //}
+
+        CodeNode* node = new CodeNode;
+        node->code = std::string("= ") + name + std::string(", ") + $3->code + std::string("\n");
+        $$ = node;
+}
+          | arraycall ASSIGN equations {
+            printf("arraycall ASSIGN equations\n");
+            
+}
+          | IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM {
+            printf("assignment-> IDENTIFIER ASSIGN READ BEGIN_PARAM ENDPARAM \n");
+            
+}
 arraycall: IDENTIFIER L_PAREN param R_PAREN {}
          ;
-equations: term equationsp {CodeNode* t = $1; CodeNode* eqp = $2; std::string code = t->code + eqp->code; CodeNode* node = new CodeNode; node->code = code; $$ = node;}
-         ;
+equations: term equationsp {
+    CodeNode* t = $1; 
+    CodeNode* eqp = $2; 
+    std::string code = t->code + eqp->code; 
+    CodeNode* node = new CodeNode; 
+    node->code = code; 
+    $$ = node;
+};
+
 equationsp: addop term equationsp {
     CodeNode* op = $1;
     CodeNode* t = $2; 
