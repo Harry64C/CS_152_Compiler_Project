@@ -1,6 +1,10 @@
 inum funct main{}[
-    inum a;
-    a ~ 150;
+    inum x;
+    x ~ 15;
 
-    ## outp{a};
+    outp{x};
+
+    #arr a(20);
+    #a{0} ~ x;
+
 ]
