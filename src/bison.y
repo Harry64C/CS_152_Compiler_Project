@@ -28,6 +28,17 @@
         std::vector<Symbol> declarations;
     };
 
+    std::string create_temp() {
+    static int num = 0;
+    std::string value = "_temp" + num;
+    num += 1;
+    return value;
+} 
+
+std::string decl_temp_code(std::string &temp) {
+    return std::string(". ") + temp + std::string("\n");
+}
+
     std::vector <Function> symbol_table;
     // remember that Bison is a bottom up parser: that it parses leaf nodes first before parsing the parent nodes. So control flow begins at the leaf grammar nodes and propagates up to the parents.
     Function *get_function() {
@@ -117,13 +128,13 @@
 %type  <node>   arguments
 %type  <node>   nonsemicolonstatement
 %type  <node>   equations
-%type  <node>   equationsp
+
 %type  <node>   assignment
 %type  <node>   function_call
 %type  <node>   arraycall
 %type  <node>   addop
 %type  <node>   term
-%type  <node>   termp
+
 %type  <node>   mulop
 %type  <node>   factor
 %type  <node>   param
@@ -268,7 +279,7 @@ declaration: INTEGER IDENTIFIER {
         Type t = Integer;
         add_variable_to_symbol_table(value, t);
         std::string code = std::string(". ") + value + std::string("\n");
-        code += std::string("= ") + value + $4->code;
+        code += std::string("= ") + value + $4->name;
         CodeNode* node = new CodeNode;
         node->code = code;
         $$ = node;
@@ -296,7 +307,8 @@ assignment: IDENTIFIER ASSIGN equations {
         //}
 
         CodeNode* node = new CodeNode;
-        node->code = std::string("= ") + name + std::string(", ") + $3->code + std::string("\n");
+        node->code = $3->code;
+        node->code += std::string("= ") + name + std::string(", ") + $3->name + std::string("\n");
         $$ = node;
 }
           | arraycall ASSIGN equations {
@@ -309,26 +321,23 @@ assignment: IDENTIFIER ASSIGN equations {
 }
 arraycall: IDENTIFIER L_PAREN param R_PAREN {}
          ;
-equations: term equationsp {
-    CodeNode* t = $1; 
-    CodeNode* eqp = $2; 
-    std::string code = t->code + eqp->code; 
-    CodeNode* node = new CodeNode; 
-    node->code = code; 
+equations: equations addop term {
+    std::string temp = create_temp();
+    CodeNode* node = new CodeNode;
+    node->code = $1->code + $3->code + decl_temp_code(temp);
+    node->code += $2->code + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+    node->name = temp;
     $$ = node;
-};
-
-equationsp: addop term equationsp {
-    CodeNode* op = $1;
-    CodeNode* t = $2; 
-    CodeNode* eqp = $3; 
-    std::string code = op->code + t->code + eqp->code; 
-    CodeNode* node = new CodeNode; 
-    node->code = code; 
+    
+}
+| term {
+    CodeNode* node = new CodeNode;
+    node->code = $1->code;
+    node->name = $1->name;
     $$ = node;
 }
-	    | %empty {CodeNode* node = new CodeNode; $$ = node;}
-	    ;
+;
+
 addop: ADD {CodeNode* node = new CodeNode; node->code = std::string("+ "); $$ = node;}
      | SUBTRACT {CodeNode* node = new CodeNode; node->code = std::string("- "); $$ = node;}
      | EQ {CodeNode* node = new CodeNode; node->code = std::string("+ "); $$ = node;}
@@ -339,27 +348,22 @@ addop: ADD {CodeNode* node = new CodeNode; node->code = std::string("+ "); $$ = 
      | LT {CodeNode* node = new CodeNode; node->code = std::string("< "); $$ = node;}
      ;
 
-term: factor termp {
-    CodeNode* fact = $1; 
-    CodeNode* tp = $2; 
-    std::string code = fact->code + tp->code; 
-    CodeNode* node = new CodeNode; 
-    node->code = code; 
+term: term mulop factor{
+    std::string temp = create_temp();
+    CodeNode* node = new CodeNode;
+    node->code = $1->code + $3->code +  decl_temp_code(temp);
+    node->code += $2->code + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+    node->name = temp;
+    $$ = node;
+    
+}
+| factor {CodeNode* node = new CodeNode;
+    node->code = $1->code;
+    node->name = $1->name;
     $$ = node;
 }
     ;
 
-termp: mulop factor termp {
-    CodeNode* op = $1; 
-    CodeNode* fct = $2; 
-    CodeNode* tp = $3; 
-    std::string code = op->code + fct->code + tp->code; 
-    CodeNode* node = new CodeNode; 
-    node->code = code; 
-    $$ = node;
-}
-     | %empty {CodeNode* node = new CodeNode; $$ = node;}
-     ;
 
 mulop: MULTIPLY {CodeNode* node = new CodeNode; node->code = std::string("* "); $$ = node;}
      | DIVISION {CodeNode* node = new CodeNode; node->code = std::string("/ "); $$ = node;}
@@ -374,11 +378,12 @@ factor: L_PAREN equations R_PAREN {
 
     CodeNode *node = new CodeNode;
     node->code = code;
+    node->name = $2->name;
     $$ = node;
 }
       | INTEGER {CodeNode* node = new CodeNode; $$ = node;}
-      | IDENTIFIER {CodeNode* node = new CodeNode; node->code = $1; $$ = node;}
-      | NUMBER {CodeNode* node = new CodeNode; node->code = $1; $$ = node;}
+      | IDENTIFIER {CodeNode* node = new CodeNode; node->name = $1; $$ = node;}
+      | NUMBER {CodeNode* node = new CodeNode; node->name = $1; $$ = node;}
       | function_call {CodeNode* node = new CodeNode; node->code = $1->code; $$ = node;}
       ;
 
@@ -439,14 +444,4 @@ bool has_main() {
     return TF;
 }
 
-/*
-std::string create_temp() {
-    static int num = 0;
-    std::string value = "_temp" + std::to_string(num);
-    num += 1;
-    return value;
-} */
 
-std::string decl_temp_code(std::string &temp) {
-    return std::string(". ") + temp + std::string("\n");
-}
