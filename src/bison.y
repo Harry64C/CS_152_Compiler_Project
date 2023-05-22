@@ -279,8 +279,10 @@ declaration: INTEGER IDENTIFIER {
 }
            | ARRAY IDENTIFIER L_PAREN factor R_PAREN {
         std::string name = $2;
-        CodeNode* n = $4;
-        std::string code = std::string(".[] ") + name + std::string(", ") + n->code;
+        CodeNode* n = $4; 
+        Type t = Integer;
+        add_variable_to_symbol_table(name, t);
+        std::string code = std::string(".[] ") + name + std::string(", ") + n->code  + std::string("\n");
         CodeNode* node = new CodeNode;
         node->code = code;
         $$ =node;
@@ -306,7 +308,7 @@ assignment: IDENTIFIER ASSIGN equations {
           | arraycall ASSIGN equations {
             printf("arraycall ASSIGN equations\n");
             CodeNode* node = new CodeNode;
-            node->code = std::string("[] = ") + $1->code + $3->code + std::string("\n");
+            node->code = std::string("[]= ") + $1->code + std::string(", ") + $3->code + std::string("\n");
             $$ = node;
 }
           | IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM {
@@ -391,6 +393,7 @@ factor: L_PAREN equations R_PAREN {
       | IDENTIFIER {CodeNode* node = new CodeNode; node->code = $1; $$ = node;}
       | NUMBER {CodeNode* node = new CodeNode; node->code = $1; $$ = node;}
       | function_call {CodeNode* node = new CodeNode; node->code = $1->code; $$ = node;}
+      | arraycall {CodeNode* node = new CodeNode; node->code = $1->code; $$ = node;}
       ;
 
 function_call: IDENTIFIER BEGIN_PARAM params END_PARAM {}
@@ -411,7 +414,7 @@ param: IDENTIFIER {
     //}
     $$ = node;
 }
-     | NUMBER {printf("param->NUMBER\n");}
+     | NUMBER {CodeNode* node = new CodeNode; node->code = $1; $$ = node;}
 
 
 if_start: IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY branch_check {printf("if_start -> IF BEGIN_BODY if_check END_PARAM BEGIN_BODY statements END_BODY branch_check\n");}
