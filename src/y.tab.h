@@ -90,7 +90,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 98 "bison.y" /* yacc.c:1909  */
+#line 109 "bison.y" /* yacc.c:1909  */
 
   char *op_val;
   struct CodeNode *node;

@@ -1,6 +1,12 @@
 inum funct main{}[
-    inum a;
-    a ~ 150;
+    inum x;
+    inum y;
+    x ~ 15;
 
-    ## outp{a};
+    #x ~ 1 plus 4 plus 3 minus 2 mult 8;
+
+    inum z ~ inp{};
+    outp{3};
+
+    return 0;
 ]

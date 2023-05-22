@@ -28,7 +28,8 @@
         std::vector<Symbol> declarations;
     };
 
-    std::string create_temp() {
+
+std::string create_temp() {
     static int num = 0;
     std::string value = "_temp" + num;
     num += 1;
@@ -57,14 +58,14 @@ std::string decl_temp_code(std::string &temp) {
     // find the symbol you are looking for.
     // you may want to extend "find" to handle different types of "Integer" vs "Array"
     bool find(std::string &value) {
-    Function *f = get_function();
-    for(int i=0; i < f->declarations.size(); i++) {
-        Symbol *s = &f->declarations[i];
-        if (s->name == value) {
-        return true;
+        Function *f = get_function();
+        for(int i=0; i < f->declarations.size(); i++) {
+            Symbol *s = &f->declarations[i];
+            if (s->name == value) {
+            return true;
+            }
         }
-    }
-    return false;
+        return false;
     }
 
     // when you see a function declaration inside the grammar, add
@@ -192,7 +193,8 @@ function_ident: IDENTIFIER {
     $$ = $1;
 };
 
-arguments: argument { CodeNode* arg = $1;
+arguments: argument { 
+        CodeNode* arg = $1;
         std::string code = arg->code;
         CodeNode *node = new CodeNode;
         node->code = code;
@@ -249,9 +251,17 @@ statement: declaration {
          | assignment {$$ = $1;}
          | function_call  {$$ = $1;}
          | BREAK  {}
-         | WRITE BEGIN_PARAM equations END_PARAM {printf("statement -> WRITE BEGIN_PARAM equations END_PARAM\n");}
+         | WRITE BEGIN_PARAM equations END_PARAM {
+            CodeNode* node = new CodeNode; 
+            node->code = std::string(". > ") + $3->code + std::string("\n"); 
+            $$ = node; 
+}
          | CONTINUE {printf("statement -> CONTINUE\n");}
-         | RETURN equations {printf("statement -> RETURN equations \n");}
+         | RETURN equations {
+            CodeNode* node = new CodeNode; 
+            node->code = std::string("ret ") + $2->code + std::string("\n"); 
+            $$ = node; 
+}
          ;
 
 nonsemicolonstatement: if_start {
@@ -286,47 +296,79 @@ declaration: INTEGER IDENTIFIER {
 }
            | ARRAY IDENTIFIER L_PAREN factor R_PAREN {
         std::string name = $2;
-        CodeNode* n = $4;
-        std::string code = std::string(".[] ") + name + std::string(", ") + n->code;
+        CodeNode* n = $4; 
+        Type t = Integer;
+        add_variable_to_symbol_table(name, t);
+        std::string code = std::string(".[] ") + name + std::string(", ") + n->code  + std::string("\n");
         CodeNode* node = new CodeNode;
         node->code = code;
         $$ =node;
 }
-           | INTEGER IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM {
-        printf("declaration-> INTEGER IDENTIFIER ASSIGN READ BEGIN_PARAM ENDPARAM \n");
-        // not needed for now because we dont take input
-        
-}
-           ;
-
-assignment: IDENTIFIER ASSIGN equations {
-        std::string name = $1;
+            | INTEGER IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM {
+        std::string name = $2;
         //std::string error;
         //if (!find(name, Integer, error)) {
         //    yyerror(error.c_str());
         //}
 
+        Type t = Integer;
+        add_variable_to_symbol_table(name, t);
+        std::string code = std::string(". ") + name + std::string("\n");
+        CodeNode* node = new CodeNode;
+        node->code = code;
+
+        node->code += std::string(".< ") + name + std::string("\n");
+        $$ = node;
+}
+           ;
+
+assignment: IDENTIFIER ASSIGN equations {
+        std::string name = $1;
         CodeNode* node = new CodeNode;
         node->code = $3->code;
         node->code += std::string("= ") + name + std::string(", ") + $3->name + std::string("\n");
         $$ = node;
 }
           | arraycall ASSIGN equations {
-            printf("arraycall ASSIGN equations\n");
             
+            printf("arraycall ASSIGN equations\n");
+            CodeNode* node = new CodeNode;
+            node->code = std::string("[]= ") + $1->code + std::string(", ") + $3->code + std::string("\n");
+            
+            /*
+            std::string temp = create_temp();
+            CodeNode *node = new CodeNode;
+            node->code = $3->code + decl_temp_code(temp);
+            node->code += std::string("[]= ") + temp + std::string(", ") + std::string("\n");
+            node->name = temp;
+            */
+            $$ = node;
 }
           | IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM {
-            printf("assignment-> IDENTIFIER ASSIGN READ BEGIN_PARAM ENDPARAM \n");
-            
+            std::string name = $1;
+            //std::string error;
+            //if (!find(name, Integer, error)) {
+            //    yyerror(error.c_str());
+            //}
+
+            CodeNode* node = new CodeNode;
+            node->code = std::string(".< ") + name + std::string("\n");
+            $$ = node;
 }
-arraycall: IDENTIFIER L_PAREN param R_PAREN {}
-         ;
+
+arraycall: IDENTIFIER L_PAREN params R_PAREN {
+    std::string name = $1;
+    CodeNode* node = new CodeNode;
+    node->code = name + std::string(", ") + $3->code;
+    $$ = node;
+};
 equations: equations addop term {
     std::string temp = create_temp();
     CodeNode* node = new CodeNode;
     node->code = $1->code + $3->code + decl_temp_code(temp);
     node->code += $2->code + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
     node->name = temp;
+
     $$ = node;
     
 }
@@ -385,18 +427,32 @@ factor: L_PAREN equations R_PAREN {
       | IDENTIFIER {CodeNode* node = new CodeNode; node->name = $1; $$ = node;}
       | NUMBER {CodeNode* node = new CodeNode; node->name = $1; $$ = node;}
       | function_call {CodeNode* node = new CodeNode; node->code = $1->code; $$ = node;}
+      | arraycall {
+        CodeNode* node = new CodeNode; node->code = $1->code; 
+        $$ = node;  
+      }
+
       ;
 
 function_call: IDENTIFIER BEGIN_PARAM params END_PARAM {}
              ;
 
-params: param {printf("params->param\n");}
+params: param {$$ = $1;}
       | param COMMA params {printf("params-> param COMMA params\n");}
-      | %empty {printf("params->epsilon\n");}
+      | %empty {CodeNode* node = new CodeNode; $$ = node;}
       ;
 
-param: IDENTIFIER {}
-     | NUMBER {printf("param->NUMBER\n");}
+param: IDENTIFIER {
+    CodeNode* node = new CodeNode;
+    node->code = "";
+    node->name = $1;
+    std::string error;
+    //if (!find(node->name, Integer, error)) {
+    //    yyerror(error.c_str());
+    //}
+    $$ = node;
+}
+     | NUMBER {CodeNode* node = new CodeNode; node->code = $1; $$ = node;}
 
 
 if_start: IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY branch_check {printf("if_start -> IF BEGIN_BODY if_check END_PARAM BEGIN_BODY statements END_BODY branch_check\n");}
@@ -407,7 +463,7 @@ branch_check: ELSE_IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_
             | else_check {printf("branch_check -> else_check\n");}
             ;
 
-else_check: %empty {printf("else_check -> epsilon\n");}
+else_check: %empty {CodeNode* node = new CodeNode; $$ = node;}
           | ELSE BEGIN_BODY statements END_BODY {printf("else_check -> ELSE BEGIN_BODY statements END_BODY\n");}
           ;
 
@@ -443,5 +499,4 @@ bool has_main() {
     }
     return TF;
 }
-
 

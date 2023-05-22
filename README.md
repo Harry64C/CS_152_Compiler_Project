@@ -32,7 +32,7 @@ Rules:
 |	if	|	check {"condition"}[...]	|
 |	else if	|	or {"condition"}[...]	|
 |	else	|	then[...] |
-|	cin	|	inum input = system.inp{}	|
+|	cin	|	inum input = inp{}	|
 |	cout	|	outp{output}	|
 |	Comments	|	#	|
 |	Return functions	|	inum funct foo{ } [...]	|
