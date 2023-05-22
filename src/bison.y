@@ -28,6 +28,17 @@
         std::vector<Symbol> declarations;
     };
 
+std::string create_temp() {
+    static int num = 0;
+    std::string value = "_temp" + num;
+    num += 1;
+    return value;
+} 
+
+std::string decl_temp_code(std::string &temp) {
+    return std::string(". ") + temp + std::string("\n");
+}
+
     std::vector <Function> symbol_table;
     // remember that Bison is a bottom up parser: that it parses leaf nodes first before parsing the parent nodes. So control flow begins at the leaf grammar nodes and propagates up to the parents.
     Function *get_function() {
@@ -306,9 +317,18 @@ assignment: IDENTIFIER ASSIGN equations {
         $$ = node;
 }
           | arraycall ASSIGN equations {
+            
             printf("arraycall ASSIGN equations\n");
             CodeNode* node = new CodeNode;
             node->code = std::string("[]= ") + $1->code + std::string(", ") + $3->code + std::string("\n");
+            
+            /*
+            std::string temp = create_temp();
+            CodeNode *node = new CodeNode;
+            node->code = $3->code + decl_temp_code(temp);
+            node->code += std::string("[]= ") + temp + std::string(", ") + std::string("\n");
+            node->name = temp;
+            */
             $$ = node;
 }
           | IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM {
@@ -393,7 +413,11 @@ factor: L_PAREN equations R_PAREN {
       | IDENTIFIER {CodeNode* node = new CodeNode; node->code = $1; $$ = node;}
       | NUMBER {CodeNode* node = new CodeNode; node->code = $1; $$ = node;}
       | function_call {CodeNode* node = new CodeNode; node->code = $1->code; $$ = node;}
-      | arraycall {CodeNode* node = new CodeNode; node->code = $1->code; $$ = node;}
+      | arraycall {
+        CodeNode* node = new CodeNode; node->code = $1->code; 
+        $$ = node;  
+      }
+
       ;
 
 function_call: IDENTIFIER BEGIN_PARAM params END_PARAM {}
@@ -460,16 +484,4 @@ bool has_main() {
             TF = true;
     }
     return TF;
-}
-
-/*
-std::string create_temp() {
-    static int num = 0;
-    std::string value = "_temp" + std::to_string(num);
-    num += 1;
-    return value;
-} */
-
-std::string decl_temp_code(std::string &temp) {
-    return std::string(". ") + temp + std::string("\n");
 }
