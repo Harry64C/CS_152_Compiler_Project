@@ -192,7 +192,8 @@ function_ident: IDENTIFIER {
     $$ = $1;
 };
 
-arguments: argument { CodeNode* arg = $1;
+arguments: argument { 
+        CodeNode* arg = $1;
         std::string code = arg->code;
         CodeNode *node = new CodeNode;
         node->code = code;
@@ -255,7 +256,11 @@ statement: declaration {
             $$ = node; 
 }
          | CONTINUE {printf("statement -> CONTINUE\n");}
-         | RETURN equations {printf("statement -> RETURN equations \n");}
+         | RETURN equations {
+            CodeNode* node = new CodeNode; 
+            node->code = std::string("ret ") + $2->code + std::string("\n"); 
+            $$ = node; 
+}
          ;
 
 nonsemicolonstatement: if_start {
@@ -298,20 +303,26 @@ declaration: INTEGER IDENTIFIER {
         node->code = code;
         $$ =node;
 }
-           | INTEGER IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM {
-        printf("declaration-> INTEGER IDENTIFIER ASSIGN READ BEGIN_PARAM ENDPARAM \n");
-        // not needed for now because we dont take input
-        
-}
-           ;
-
-assignment: IDENTIFIER ASSIGN equations {
-        std::string name = $1;
+            | INTEGER IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM {
+        std::string name = $2;
         //std::string error;
         //if (!find(name, Integer, error)) {
         //    yyerror(error.c_str());
         //}
 
+        Type t = Integer;
+        add_variable_to_symbol_table(name, t);
+        std::string code = std::string(". ") + name + std::string("\n");
+        CodeNode* node = new CodeNode;
+        node->code = code;
+
+        node->code += std::string(".< ") + name + std::string("\n");
+        $$ = node;
+}
+           ;
+
+assignment: IDENTIFIER ASSIGN equations {
+        std::string name = $1;
         CodeNode* node = new CodeNode;
         node->code = std::string("= ") + name + std::string(", ") + $3->code + std::string("\n");
         $$ = node;
@@ -332,9 +343,17 @@ assignment: IDENTIFIER ASSIGN equations {
             $$ = node;
 }
           | IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM {
-            printf("assignment-> IDENTIFIER ASSIGN READ BEGIN_PARAM ENDPARAM \n");
-            
+            std::string name = $1;
+            //std::string error;
+            //if (!find(name, Integer, error)) {
+            //    yyerror(error.c_str());
+            //}
+
+            CodeNode* node = new CodeNode;
+            node->code = std::string(".< ") + name + std::string("\n");
+            $$ = node;
 }
+
 arraycall: IDENTIFIER L_PAREN params R_PAREN {
     std::string name = $1;
     CodeNode* node = new CodeNode;
@@ -425,7 +444,7 @@ function_call: IDENTIFIER BEGIN_PARAM params END_PARAM {}
 
 params: param {$$ = $1;}
       | param COMMA params {printf("params-> param COMMA params\n");}
-      | %empty {printf("params->epsilon\n");}
+      | %empty {CodeNode* node = new CodeNode; $$ = node;}
       ;
 
 param: IDENTIFIER {
@@ -449,7 +468,7 @@ branch_check: ELSE_IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_
             | else_check {printf("branch_check -> else_check\n");}
             ;
 
-else_check: %empty {printf("else_check -> epsilon\n");}
+else_check: %empty {CodeNode* node = new CodeNode; $$ = node;}
           | ELSE BEGIN_BODY statements END_BODY {printf("else_check -> ELSE BEGIN_BODY statements END_BODY\n");}
           ;
 

@@ -46,7 +46,7 @@ Grammar
    27           | arraycall ASSIGN equations
    28           | IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM
 
-   29 arraycall: IDENTIFIER L_PAREN param R_PAREN
+   29 arraycall: IDENTIFIER L_PAREN params R_PAREN
 
    30 equations: term equationsp
 
@@ -78,25 +78,26 @@ Grammar
    51       | IDENTIFIER
    52       | NUMBER
    53       | function_call
+   54       | arraycall
 
-   54 function_call: IDENTIFIER BEGIN_PARAM params END_PARAM
+   55 function_call: IDENTIFIER BEGIN_PARAM params END_PARAM
 
-   55 params: param
-   56       | param COMMA params
-   57       | %empty
+   56 params: param
+   57       | param COMMA params
+   58       | %empty
 
-   58 param: IDENTIFIER
-   59      | NUMBER
+   59 param: IDENTIFIER
+   60      | NUMBER
 
-   60 if_start: IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY branch_check
+   61 if_start: IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY branch_check
 
-   61 branch_check: ELSE_IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY else_check
-   62             | else_check
+   62 branch_check: ELSE_IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY else_check
+   63             | else_check
 
-   63 else_check: %empty
-   64           | ELSE BEGIN_BODY statements END_BODY
+   64 else_check: %empty
+   65           | ELSE BEGIN_BODY statements END_BODY
 
-   65 until_loop: WHILE BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY
+   66 until_loop: WHILE BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY
 
 
 Terminals, with rules where they appear
@@ -118,28 +119,28 @@ LTE (269) 37
 NEQ (270) 38
 GT (271) 39
 LT (272) 40
-BEGIN_BODY (273) 4 60 61 64 65
-END_BODY (274) 4 60 61 64 65
-BEGIN_PARAM (275) 4 17 25 28 54 60 61 65
-END_PARAM (276) 4 17 25 28 54 60 61 65
+BEGIN_BODY (273) 4 61 62 65 66
+END_BODY (274) 4 61 62 65 66
+BEGIN_PARAM (275) 4 17 25 28 55 61 62 66
+END_PARAM (276) 4 17 25 28 55 61 62 66
 L_PAREN (277) 24 29 49
 R_PAREN (278) 24 29 49
-IF (279) 60
-ELSE (280) 64
-ELSE_IF (281) 61
-WHILE (282) 65
+IF (279) 61
+ELSE (280) 65
+ELSE_IF (281) 62
+WHILE (282) 66
 BREAK (283) 16
 CONTINUE (284) 18
 READ (285) 25 28
 WRITE (286) 17
 RETURN (287) 19
 SEMICOLON (288) 11
-COMMA (289) 7 56
+COMMA (289) 7 57
 AND (290) 47
 OR (291) 48
 DOT (292)
-NUMBER (293) 52 59
-IDENTIFIER (294) 5 9 22 23 24 25 26 28 29 51 54 58
+NUMBER (293) 52 60
+IDENTIFIER (294) 5 9 22 23 24 25 26 28 29 51 55 59
 
 
 Nonterminals, with rules where they appear
@@ -159,7 +160,7 @@ arguments (45)
 argument (46)
     on left: 8 9, on right: 6 7
 statements (47)
-    on left: 10 11 12, on right: 4 11 12 60 61 64 65
+    on left: 10 11 12, on right: 4 11 12 61 62 65 66
 statement (48)
     on left: 13 14 15 16 17 18 19, on right: 11
 nonsemicolonstatement (49)
@@ -169,9 +170,9 @@ declaration (50)
 assignment (51)
     on left: 26 27 28, on right: 14
 arraycall (52)
-    on left: 29, on right: 27
+    on left: 29, on right: 27 54
 equations (53)
-    on left: 30, on right: 17 19 23 26 27 49 60 61 65
+    on left: 30, on right: 17 19 23 26 27 49 61 62 66
 equationsp (54)
     on left: 31 32, on right: 30 31
 addop (55)
@@ -183,21 +184,21 @@ termp (57)
 mulop (58)
     on left: 44 45 46 47 48, on right: 42
 factor (59)
-    on left: 49 50 51 52 53, on right: 24 41 42
+    on left: 49 50 51 52 53 54, on right: 24 41 42
 function_call (60)
-    on left: 54, on right: 15 53
+    on left: 55, on right: 15 53
 params (61)
-    on left: 55 56 57, on right: 54 56
+    on left: 56 57 58, on right: 29 55 57
 param (62)
-    on left: 58 59, on right: 29 55 56
+    on left: 59 60, on right: 56 57
 if_start (63)
-    on left: 60, on right: 20
+    on left: 61, on right: 20
 branch_check (64)
-    on left: 61 62, on right: 60
+    on left: 62 63, on right: 61
 else_check (65)
-    on left: 63 64, on right: 61 62
+    on left: 64 65, on right: 62 63
 until_loop (66)
-    on left: 65, on right: 21
+    on left: 66, on right: 21
 
 
 State 0
@@ -397,14 +398,14 @@ State 20
 
 State 21
 
-   60 if_start: IF . BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY branch_check
+   61 if_start: IF . BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY branch_check
 
     BEGIN_PARAM  shift, and go to state 39
 
 
 State 22
 
-   65 until_loop: WHILE . BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY
+   66 until_loop: WHILE . BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY
 
     BEGIN_PARAM  shift, and go to state 40
 
@@ -439,36 +440,37 @@ State 26
     NUMBER      shift, and go to state 44
     IDENTIFIER  shift, and go to state 45
 
-    equations      go to state 46
-    term           go to state 47
-    factor         go to state 48
-    function_call  go to state 49
+    arraycall      go to state 46
+    equations      go to state 47
+    term           go to state 48
+    factor         go to state 49
+    function_call  go to state 50
 
 
 State 27
 
    26 assignment: IDENTIFIER . ASSIGN equations
    28           | IDENTIFIER . ASSIGN READ BEGIN_PARAM END_PARAM
-   29 arraycall: IDENTIFIER . L_PAREN param R_PAREN
-   54 function_call: IDENTIFIER . BEGIN_PARAM params END_PARAM
+   29 arraycall: IDENTIFIER . L_PAREN params R_PAREN
+   55 function_call: IDENTIFIER . BEGIN_PARAM params END_PARAM
 
-    ASSIGN       shift, and go to state 50
-    BEGIN_PARAM  shift, and go to state 51
-    L_PAREN      shift, and go to state 52
+    ASSIGN       shift, and go to state 51
+    BEGIN_PARAM  shift, and go to state 52
+    L_PAREN      shift, and go to state 53
 
 
 State 28
 
     4 function: INTEGER FUNCTION function_ident BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements . END_BODY
 
-    END_BODY  shift, and go to state 53
+    END_BODY  shift, and go to state 54
 
 
 State 29
 
    11 statements: statement . SEMICOLON statements
 
-    SEMICOLON  shift, and go to state 54
+    SEMICOLON  shift, and go to state 55
 
 
 State 30
@@ -487,7 +489,7 @@ State 30
 
     $default  reduce using rule 10 (statements)
 
-    statements             go to state 55
+    statements             go to state 56
     statement              go to state 29
     nonsemicolonstatement  go to state 30
     declaration            go to state 31
@@ -516,7 +518,7 @@ State 33
 
    27 assignment: arraycall . ASSIGN equations
 
-    ASSIGN  shift, and go to state 56
+    ASSIGN  shift, and go to state 57
 
 
 State 34
@@ -546,7 +548,7 @@ State 37
    23            | INTEGER IDENTIFIER . ASSIGN equations
    25            | INTEGER IDENTIFIER . ASSIGN READ BEGIN_PARAM END_PARAM
 
-    ASSIGN  shift, and go to state 57
+    ASSIGN  shift, and go to state 58
 
     $default  reduce using rule 22 (declaration)
 
@@ -555,37 +557,39 @@ State 38
 
    24 declaration: ARRAY IDENTIFIER . L_PAREN factor R_PAREN
 
-    L_PAREN  shift, and go to state 58
+    L_PAREN  shift, and go to state 59
 
 
 State 39
 
-   60 if_start: IF BEGIN_PARAM . equations END_PARAM BEGIN_BODY statements END_BODY branch_check
+   61 if_start: IF BEGIN_PARAM . equations END_PARAM BEGIN_BODY statements END_BODY branch_check
 
     INTEGER     shift, and go to state 42
     L_PAREN     shift, and go to state 43
     NUMBER      shift, and go to state 44
     IDENTIFIER  shift, and go to state 45
 
-    equations      go to state 59
-    term           go to state 47
-    factor         go to state 48
-    function_call  go to state 49
+    arraycall      go to state 46
+    equations      go to state 60
+    term           go to state 48
+    factor         go to state 49
+    function_call  go to state 50
 
 
 State 40
 
-   65 until_loop: WHILE BEGIN_PARAM . equations END_PARAM BEGIN_BODY statements END_BODY
+   66 until_loop: WHILE BEGIN_PARAM . equations END_PARAM BEGIN_BODY statements END_BODY
 
     INTEGER     shift, and go to state 42
     L_PAREN     shift, and go to state 43
     NUMBER      shift, and go to state 44
     IDENTIFIER  shift, and go to state 45
 
-    equations      go to state 60
-    term           go to state 47
-    factor         go to state 48
-    function_call  go to state 49
+    arraycall      go to state 46
+    equations      go to state 61
+    term           go to state 48
+    factor         go to state 49
+    function_call  go to state 50
 
 
 State 41
@@ -597,10 +601,11 @@ State 41
     NUMBER      shift, and go to state 44
     IDENTIFIER  shift, and go to state 45
 
-    equations      go to state 61
-    term           go to state 47
-    factor         go to state 48
-    function_call  go to state 49
+    arraycall      go to state 46
+    equations      go to state 62
+    term           go to state 48
+    factor         go to state 49
+    function_call  go to state 50
 
 
 State 42
@@ -619,10 +624,11 @@ State 43
     NUMBER      shift, and go to state 44
     IDENTIFIER  shift, and go to state 45
 
-    equations      go to state 62
-    term           go to state 47
-    factor         go to state 48
-    function_call  go to state 49
+    arraycall      go to state 46
+    equations      go to state 63
+    term           go to state 48
+    factor         go to state 49
+    function_call  go to state 50
 
 
 State 44
@@ -634,111 +640,124 @@ State 44
 
 State 45
 
+   29 arraycall: IDENTIFIER . L_PAREN params R_PAREN
    51 factor: IDENTIFIER .
-   54 function_call: IDENTIFIER . BEGIN_PARAM params END_PARAM
+   55 function_call: IDENTIFIER . BEGIN_PARAM params END_PARAM
 
-    BEGIN_PARAM  shift, and go to state 51
+    BEGIN_PARAM  shift, and go to state 52
+    L_PAREN      shift, and go to state 53
 
     $default  reduce using rule 51 (factor)
 
 
 State 46
 
+   54 factor: arraycall .
+
+    $default  reduce using rule 54 (factor)
+
+
+State 47
+
    19 statement: RETURN equations .
 
     $default  reduce using rule 19 (statement)
 
 
-State 47
+State 48
 
    30 equations: term . equationsp
 
-    ADD       shift, and go to state 63
-    SUBTRACT  shift, and go to state 64
-    EQ        shift, and go to state 65
-    GTE       shift, and go to state 66
-    LTE       shift, and go to state 67
-    NEQ       shift, and go to state 68
-    GT        shift, and go to state 69
-    LT        shift, and go to state 70
+    ADD       shift, and go to state 64
+    SUBTRACT  shift, and go to state 65
+    EQ        shift, and go to state 66
+    GTE       shift, and go to state 67
+    LTE       shift, and go to state 68
+    NEQ       shift, and go to state 69
+    GT        shift, and go to state 70
+    LT        shift, and go to state 71
 
     $default  reduce using rule 32 (equationsp)
 
-    equationsp  go to state 71
-    addop       go to state 72
-
-
-State 48
-
-   41 term: factor . termp
-
-    MULTIPLY  shift, and go to state 73
-    DIVISION  shift, and go to state 74
-    MOD       shift, and go to state 75
-    AND       shift, and go to state 76
-    OR        shift, and go to state 77
-
-    $default  reduce using rule 43 (termp)
-
-    termp  go to state 78
-    mulop  go to state 79
+    equationsp  go to state 72
+    addop       go to state 73
 
 
 State 49
+
+   41 term: factor . termp
+
+    MULTIPLY  shift, and go to state 74
+    DIVISION  shift, and go to state 75
+    MOD       shift, and go to state 76
+    AND       shift, and go to state 77
+    OR        shift, and go to state 78
+
+    $default  reduce using rule 43 (termp)
+
+    termp  go to state 79
+    mulop  go to state 80
+
+
+State 50
 
    53 factor: function_call .
 
     $default  reduce using rule 53 (factor)
 
 
-State 50
+State 51
 
    26 assignment: IDENTIFIER ASSIGN . equations
    28           | IDENTIFIER ASSIGN . READ BEGIN_PARAM END_PARAM
 
     INTEGER     shift, and go to state 42
     L_PAREN     shift, and go to state 43
-    READ        shift, and go to state 80
+    READ        shift, and go to state 81
     NUMBER      shift, and go to state 44
     IDENTIFIER  shift, and go to state 45
 
-    equations      go to state 81
-    term           go to state 47
-    factor         go to state 48
-    function_call  go to state 49
-
-
-State 51
-
-   54 function_call: IDENTIFIER BEGIN_PARAM . params END_PARAM
-
-    NUMBER      shift, and go to state 82
-    IDENTIFIER  shift, and go to state 83
-
-    $default  reduce using rule 57 (params)
-
-    params  go to state 84
-    param   go to state 85
+    arraycall      go to state 46
+    equations      go to state 82
+    term           go to state 48
+    factor         go to state 49
+    function_call  go to state 50
 
 
 State 52
 
-   29 arraycall: IDENTIFIER L_PAREN . param R_PAREN
+   55 function_call: IDENTIFIER BEGIN_PARAM . params END_PARAM
 
-    NUMBER      shift, and go to state 82
-    IDENTIFIER  shift, and go to state 83
+    NUMBER      shift, and go to state 83
+    IDENTIFIER  shift, and go to state 84
 
-    param  go to state 86
+    $default  reduce using rule 58 (params)
+
+    params  go to state 85
+    param   go to state 86
 
 
 State 53
+
+   29 arraycall: IDENTIFIER L_PAREN . params R_PAREN
+
+    NUMBER      shift, and go to state 83
+    IDENTIFIER  shift, and go to state 84
+
+    $default  reduce using rule 58 (params)
+
+    params  go to state 87
+    param   go to state 86
+
+
+State 54
 
     4 function: INTEGER FUNCTION function_ident BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY .
 
     $default  reduce using rule 4 (function)
 
 
-State 54
+State 55
 
    11 statements: statement SEMICOLON . statements
 
@@ -754,7 +773,7 @@ State 54
 
     $default  reduce using rule 10 (statements)
 
-    statements             go to state 87
+    statements             go to state 88
     statement              go to state 29
     nonsemicolonstatement  go to state 30
     declaration            go to state 31
@@ -765,14 +784,14 @@ State 54
     until_loop             go to state 36
 
 
-State 55
+State 56
 
    12 statements: nonsemicolonstatement statements .
 
     $default  reduce using rule 12 (statements)
 
 
-State 56
+State 57
 
    27 assignment: arraycall ASSIGN . equations
 
@@ -781,30 +800,32 @@ State 56
     NUMBER      shift, and go to state 44
     IDENTIFIER  shift, and go to state 45
 
-    equations      go to state 88
-    term           go to state 47
-    factor         go to state 48
-    function_call  go to state 49
+    arraycall      go to state 46
+    equations      go to state 89
+    term           go to state 48
+    factor         go to state 49
+    function_call  go to state 50
 
 
-State 57
+State 58
 
    23 declaration: INTEGER IDENTIFIER ASSIGN . equations
    25            | INTEGER IDENTIFIER ASSIGN . READ BEGIN_PARAM END_PARAM
 
     INTEGER     shift, and go to state 42
     L_PAREN     shift, and go to state 43
-    READ        shift, and go to state 89
+    READ        shift, and go to state 90
     NUMBER      shift, and go to state 44
     IDENTIFIER  shift, and go to state 45
 
-    equations      go to state 90
-    term           go to state 47
-    factor         go to state 48
-    function_call  go to state 49
+    arraycall      go to state 46
+    equations      go to state 91
+    term           go to state 48
+    factor         go to state 49
+    function_call  go to state 50
 
 
-State 58
+State 59
 
    24 declaration: ARRAY IDENTIFIER L_PAREN . factor R_PAREN
 
@@ -813,102 +834,103 @@ State 58
     NUMBER      shift, and go to state 44
     IDENTIFIER  shift, and go to state 45
 
-    factor         go to state 91
-    function_call  go to state 49
-
-
-State 59
-
-   60 if_start: IF BEGIN_PARAM equations . END_PARAM BEGIN_BODY statements END_BODY branch_check
-
-    END_PARAM  shift, and go to state 92
+    arraycall      go to state 46
+    factor         go to state 92
+    function_call  go to state 50
 
 
 State 60
 
-   65 until_loop: WHILE BEGIN_PARAM equations . END_PARAM BEGIN_BODY statements END_BODY
+   61 if_start: IF BEGIN_PARAM equations . END_PARAM BEGIN_BODY statements END_BODY branch_check
 
     END_PARAM  shift, and go to state 93
 
 
 State 61
 
-   17 statement: WRITE BEGIN_PARAM equations . END_PARAM
+   66 until_loop: WHILE BEGIN_PARAM equations . END_PARAM BEGIN_BODY statements END_BODY
 
     END_PARAM  shift, and go to state 94
 
 
 State 62
 
-   49 factor: L_PAREN equations . R_PAREN
+   17 statement: WRITE BEGIN_PARAM equations . END_PARAM
 
-    R_PAREN  shift, and go to state 95
+    END_PARAM  shift, and go to state 95
 
 
 State 63
+
+   49 factor: L_PAREN equations . R_PAREN
+
+    R_PAREN  shift, and go to state 96
+
+
+State 64
 
    33 addop: ADD .
 
     $default  reduce using rule 33 (addop)
 
 
-State 64
+State 65
 
    34 addop: SUBTRACT .
 
     $default  reduce using rule 34 (addop)
 
 
-State 65
+State 66
 
    35 addop: EQ .
 
     $default  reduce using rule 35 (addop)
 
 
-State 66
+State 67
 
    36 addop: GTE .
 
     $default  reduce using rule 36 (addop)
 
 
-State 67
+State 68
 
    37 addop: LTE .
 
     $default  reduce using rule 37 (addop)
 
 
-State 68
+State 69
 
    38 addop: NEQ .
 
     $default  reduce using rule 38 (addop)
 
 
-State 69
+State 70
 
    39 addop: GT .
 
     $default  reduce using rule 39 (addop)
 
 
-State 70
+State 71
 
    40 addop: LT .
 
     $default  reduce using rule 40 (addop)
 
 
-State 71
+State 72
 
    30 equations: term equationsp .
 
     $default  reduce using rule 30 (equations)
 
 
-State 72
+State 73
 
    31 equationsp: addop . term equationsp
 
@@ -917,54 +939,55 @@ State 72
     NUMBER      shift, and go to state 44
     IDENTIFIER  shift, and go to state 45
 
-    term           go to state 96
-    factor         go to state 48
-    function_call  go to state 49
+    arraycall      go to state 46
+    term           go to state 97
+    factor         go to state 49
+    function_call  go to state 50
 
 
-State 73
+State 74
 
    44 mulop: MULTIPLY .
 
     $default  reduce using rule 44 (mulop)
 
 
-State 74
+State 75
 
    45 mulop: DIVISION .
 
     $default  reduce using rule 45 (mulop)
 
 
-State 75
+State 76
 
    46 mulop: MOD .
 
     $default  reduce using rule 46 (mulop)
 
 
-State 76
+State 77
 
    47 mulop: AND .
 
     $default  reduce using rule 47 (mulop)
 
 
-State 77
+State 78
 
    48 mulop: OR .
 
     $default  reduce using rule 48 (mulop)
 
 
-State 78
+State 79
 
    41 term: factor termp .
 
     $default  reduce using rule 41 (term)
 
 
-State 79
+State 80
 
    42 termp: mulop . factor termp
 
@@ -973,238 +996,212 @@ State 79
     NUMBER      shift, and go to state 44
     IDENTIFIER  shift, and go to state 45
 
-    factor         go to state 97
-    function_call  go to state 49
-
-
-State 80
-
-   28 assignment: IDENTIFIER ASSIGN READ . BEGIN_PARAM END_PARAM
-
-    BEGIN_PARAM  shift, and go to state 98
+    arraycall      go to state 46
+    factor         go to state 98
+    function_call  go to state 50
 
 
 State 81
+
+   28 assignment: IDENTIFIER ASSIGN READ . BEGIN_PARAM END_PARAM
+
+    BEGIN_PARAM  shift, and go to state 99
+
+
+State 82
 
    26 assignment: IDENTIFIER ASSIGN equations .
 
     $default  reduce using rule 26 (assignment)
 
 
-State 82
-
-   59 param: NUMBER .
-
-    $default  reduce using rule 59 (param)
-
-
 State 83
 
-   58 param: IDENTIFIER .
+   60 param: NUMBER .
 
-    $default  reduce using rule 58 (param)
+    $default  reduce using rule 60 (param)
 
 
 State 84
 
-   54 function_call: IDENTIFIER BEGIN_PARAM params . END_PARAM
+   59 param: IDENTIFIER .
 
-    END_PARAM  shift, and go to state 99
+    $default  reduce using rule 59 (param)
 
 
 State 85
 
-   55 params: param .
-   56       | param . COMMA params
+   55 function_call: IDENTIFIER BEGIN_PARAM params . END_PARAM
 
-    COMMA  shift, and go to state 100
-
-    $default  reduce using rule 55 (params)
+    END_PARAM  shift, and go to state 100
 
 
 State 86
 
-   29 arraycall: IDENTIFIER L_PAREN param . R_PAREN
+   56 params: param .
+   57       | param . COMMA params
 
-    R_PAREN  shift, and go to state 101
+    COMMA  shift, and go to state 101
+
+    $default  reduce using rule 56 (params)
 
 
 State 87
+
+   29 arraycall: IDENTIFIER L_PAREN params . R_PAREN
+
+    R_PAREN  shift, and go to state 102
+
+
+State 88
 
    11 statements: statement SEMICOLON statements .
 
     $default  reduce using rule 11 (statements)
 
 
-State 88
+State 89
 
    27 assignment: arraycall ASSIGN equations .
 
     $default  reduce using rule 27 (assignment)
 
 
-State 89
+State 90
 
    25 declaration: INTEGER IDENTIFIER ASSIGN READ . BEGIN_PARAM END_PARAM
 
-    BEGIN_PARAM  shift, and go to state 102
+    BEGIN_PARAM  shift, and go to state 103
 
 
-State 90
+State 91
 
    23 declaration: INTEGER IDENTIFIER ASSIGN equations .
 
     $default  reduce using rule 23 (declaration)
 
 
-State 91
+State 92
 
    24 declaration: ARRAY IDENTIFIER L_PAREN factor . R_PAREN
 
-    R_PAREN  shift, and go to state 103
-
-
-State 92
-
-   60 if_start: IF BEGIN_PARAM equations END_PARAM . BEGIN_BODY statements END_BODY branch_check
-
-    BEGIN_BODY  shift, and go to state 104
+    R_PAREN  shift, and go to state 104
 
 
 State 93
 
-   65 until_loop: WHILE BEGIN_PARAM equations END_PARAM . BEGIN_BODY statements END_BODY
+   61 if_start: IF BEGIN_PARAM equations END_PARAM . BEGIN_BODY statements END_BODY branch_check
 
     BEGIN_BODY  shift, and go to state 105
 
 
 State 94
 
+   66 until_loop: WHILE BEGIN_PARAM equations END_PARAM . BEGIN_BODY statements END_BODY
+
+    BEGIN_BODY  shift, and go to state 106
+
+
+State 95
+
    17 statement: WRITE BEGIN_PARAM equations END_PARAM .
 
     $default  reduce using rule 17 (statement)
 
 
-State 95
+State 96
 
    49 factor: L_PAREN equations R_PAREN .
 
     $default  reduce using rule 49 (factor)
 
 
-State 96
+State 97
 
    31 equationsp: addop term . equationsp
 
-    ADD       shift, and go to state 63
-    SUBTRACT  shift, and go to state 64
-    EQ        shift, and go to state 65
-    GTE       shift, and go to state 66
-    LTE       shift, and go to state 67
-    NEQ       shift, and go to state 68
-    GT        shift, and go to state 69
-    LT        shift, and go to state 70
+    ADD       shift, and go to state 64
+    SUBTRACT  shift, and go to state 65
+    EQ        shift, and go to state 66
+    GTE       shift, and go to state 67
+    LTE       shift, and go to state 68
+    NEQ       shift, and go to state 69
+    GT        shift, and go to state 70
+    LT        shift, and go to state 71
 
     $default  reduce using rule 32 (equationsp)
 
-    equationsp  go to state 106
-    addop       go to state 72
-
-
-State 97
-
-   42 termp: mulop factor . termp
-
-    MULTIPLY  shift, and go to state 73
-    DIVISION  shift, and go to state 74
-    MOD       shift, and go to state 75
-    AND       shift, and go to state 76
-    OR        shift, and go to state 77
-
-    $default  reduce using rule 43 (termp)
-
-    termp  go to state 107
-    mulop  go to state 79
+    equationsp  go to state 107
+    addop       go to state 73
 
 
 State 98
 
-   28 assignment: IDENTIFIER ASSIGN READ BEGIN_PARAM . END_PARAM
+   42 termp: mulop factor . termp
 
-    END_PARAM  shift, and go to state 108
+    MULTIPLY  shift, and go to state 74
+    DIVISION  shift, and go to state 75
+    MOD       shift, and go to state 76
+    AND       shift, and go to state 77
+    OR        shift, and go to state 78
+
+    $default  reduce using rule 43 (termp)
+
+    termp  go to state 108
+    mulop  go to state 80
 
 
 State 99
 
-   54 function_call: IDENTIFIER BEGIN_PARAM params END_PARAM .
+   28 assignment: IDENTIFIER ASSIGN READ BEGIN_PARAM . END_PARAM
 
-    $default  reduce using rule 54 (function_call)
+    END_PARAM  shift, and go to state 109
 
 
 State 100
 
-   56 params: param COMMA . params
+   55 function_call: IDENTIFIER BEGIN_PARAM params END_PARAM .
 
-    NUMBER      shift, and go to state 82
-    IDENTIFIER  shift, and go to state 83
-
-    $default  reduce using rule 57 (params)
-
-    params  go to state 109
-    param   go to state 85
+    $default  reduce using rule 55 (function_call)
 
 
 State 101
 
-   29 arraycall: IDENTIFIER L_PAREN param R_PAREN .
+   57 params: param COMMA . params
 
-    $default  reduce using rule 29 (arraycall)
+    NUMBER      shift, and go to state 83
+    IDENTIFIER  shift, and go to state 84
+
+    $default  reduce using rule 58 (params)
+
+    params  go to state 110
+    param   go to state 86
 
 
 State 102
 
-   25 declaration: INTEGER IDENTIFIER ASSIGN READ BEGIN_PARAM . END_PARAM
+   29 arraycall: IDENTIFIER L_PAREN params R_PAREN .
 
-    END_PARAM  shift, and go to state 110
+    $default  reduce using rule 29 (arraycall)
 
 
 State 103
+
+   25 declaration: INTEGER IDENTIFIER ASSIGN READ BEGIN_PARAM . END_PARAM
+
+    END_PARAM  shift, and go to state 111
+
+
+State 104
 
    24 declaration: ARRAY IDENTIFIER L_PAREN factor R_PAREN .
 
     $default  reduce using rule 24 (declaration)
 
 
-State 104
-
-   60 if_start: IF BEGIN_PARAM equations END_PARAM BEGIN_BODY . statements END_BODY branch_check
-
-    INTEGER     shift, and go to state 19
-    ARRAY       shift, and go to state 20
-    IF          shift, and go to state 21
-    WHILE       shift, and go to state 22
-    BREAK       shift, and go to state 23
-    CONTINUE    shift, and go to state 24
-    WRITE       shift, and go to state 25
-    RETURN      shift, and go to state 26
-    IDENTIFIER  shift, and go to state 27
-
-    $default  reduce using rule 10 (statements)
-
-    statements             go to state 111
-    statement              go to state 29
-    nonsemicolonstatement  go to state 30
-    declaration            go to state 31
-    assignment             go to state 32
-    arraycall              go to state 33
-    function_call          go to state 34
-    if_start               go to state 35
-    until_loop             go to state 36
-
-
 State 105
 
-   65 until_loop: WHILE BEGIN_PARAM equations END_PARAM BEGIN_BODY . statements END_BODY
+   61 if_start: IF BEGIN_PARAM equations END_PARAM BEGIN_BODY . statements END_BODY branch_check
 
     INTEGER     shift, and go to state 19
     ARRAY       shift, and go to state 20
@@ -1231,104 +1228,131 @@ State 105
 
 State 106
 
+   66 until_loop: WHILE BEGIN_PARAM equations END_PARAM BEGIN_BODY . statements END_BODY
+
+    INTEGER     shift, and go to state 19
+    ARRAY       shift, and go to state 20
+    IF          shift, and go to state 21
+    WHILE       shift, and go to state 22
+    BREAK       shift, and go to state 23
+    CONTINUE    shift, and go to state 24
+    WRITE       shift, and go to state 25
+    RETURN      shift, and go to state 26
+    IDENTIFIER  shift, and go to state 27
+
+    $default  reduce using rule 10 (statements)
+
+    statements             go to state 113
+    statement              go to state 29
+    nonsemicolonstatement  go to state 30
+    declaration            go to state 31
+    assignment             go to state 32
+    arraycall              go to state 33
+    function_call          go to state 34
+    if_start               go to state 35
+    until_loop             go to state 36
+
+
+State 107
+
    31 equationsp: addop term equationsp .
 
     $default  reduce using rule 31 (equationsp)
 
 
-State 107
+State 108
 
    42 termp: mulop factor termp .
 
     $default  reduce using rule 42 (termp)
 
 
-State 108
+State 109
 
    28 assignment: IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM .
 
     $default  reduce using rule 28 (assignment)
 
 
-State 109
-
-   56 params: param COMMA params .
-
-    $default  reduce using rule 56 (params)
-
-
 State 110
+
+   57 params: param COMMA params .
+
+    $default  reduce using rule 57 (params)
+
+
+State 111
 
    25 declaration: INTEGER IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM .
 
     $default  reduce using rule 25 (declaration)
 
 
-State 111
-
-   60 if_start: IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements . END_BODY branch_check
-
-    END_BODY  shift, and go to state 113
-
-
 State 112
 
-   65 until_loop: WHILE BEGIN_PARAM equations END_PARAM BEGIN_BODY statements . END_BODY
+   61 if_start: IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements . END_BODY branch_check
 
     END_BODY  shift, and go to state 114
 
 
 State 113
 
-   60 if_start: IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY . branch_check
+   66 until_loop: WHILE BEGIN_PARAM equations END_PARAM BEGIN_BODY statements . END_BODY
 
-    ELSE     shift, and go to state 115
-    ELSE_IF  shift, and go to state 116
-
-    $default  reduce using rule 63 (else_check)
-
-    branch_check  go to state 117
-    else_check    go to state 118
+    END_BODY  shift, and go to state 115
 
 
 State 114
 
-   65 until_loop: WHILE BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY .
+   61 if_start: IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY . branch_check
 
-    $default  reduce using rule 65 (until_loop)
+    ELSE     shift, and go to state 116
+    ELSE_IF  shift, and go to state 117
+
+    $default  reduce using rule 64 (else_check)
+
+    branch_check  go to state 118
+    else_check    go to state 119
 
 
 State 115
 
-   64 else_check: ELSE . BEGIN_BODY statements END_BODY
+   66 until_loop: WHILE BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY .
 
-    BEGIN_BODY  shift, and go to state 119
+    $default  reduce using rule 66 (until_loop)
 
 
 State 116
 
-   61 branch_check: ELSE_IF . BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY else_check
+   65 else_check: ELSE . BEGIN_BODY statements END_BODY
 
-    BEGIN_PARAM  shift, and go to state 120
+    BEGIN_BODY  shift, and go to state 120
 
 
 State 117
 
-   60 if_start: IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY branch_check .
+   62 branch_check: ELSE_IF . BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY else_check
 
-    $default  reduce using rule 60 (if_start)
+    BEGIN_PARAM  shift, and go to state 121
 
 
 State 118
 
-   62 branch_check: else_check .
+   61 if_start: IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY branch_check .
 
-    $default  reduce using rule 62 (branch_check)
+    $default  reduce using rule 61 (if_start)
 
 
 State 119
 
-   64 else_check: ELSE BEGIN_BODY . statements END_BODY
+   63 branch_check: else_check .
+
+    $default  reduce using rule 63 (branch_check)
+
+
+State 120
+
+   65 else_check: ELSE BEGIN_BODY . statements END_BODY
 
     INTEGER     shift, and go to state 19
     ARRAY       shift, and go to state 20
@@ -1342,7 +1366,7 @@ State 119
 
     $default  reduce using rule 10 (statements)
 
-    statements             go to state 121
+    statements             go to state 122
     statement              go to state 29
     nonsemicolonstatement  go to state 30
     declaration            go to state 31
@@ -1353,52 +1377,53 @@ State 119
     until_loop             go to state 36
 
 
-State 120
+State 121
 
-   61 branch_check: ELSE_IF BEGIN_PARAM . equations END_PARAM BEGIN_BODY statements END_BODY else_check
+   62 branch_check: ELSE_IF BEGIN_PARAM . equations END_PARAM BEGIN_BODY statements END_BODY else_check
 
     INTEGER     shift, and go to state 42
     L_PAREN     shift, and go to state 43
     NUMBER      shift, and go to state 44
     IDENTIFIER  shift, and go to state 45
 
-    equations      go to state 122
-    term           go to state 47
-    factor         go to state 48
-    function_call  go to state 49
-
-
-State 121
-
-   64 else_check: ELSE BEGIN_BODY statements . END_BODY
-
-    END_BODY  shift, and go to state 123
+    arraycall      go to state 46
+    equations      go to state 123
+    term           go to state 48
+    factor         go to state 49
+    function_call  go to state 50
 
 
 State 122
 
-   61 branch_check: ELSE_IF BEGIN_PARAM equations . END_PARAM BEGIN_BODY statements END_BODY else_check
+   65 else_check: ELSE BEGIN_BODY statements . END_BODY
 
-    END_PARAM  shift, and go to state 124
+    END_BODY  shift, and go to state 124
 
 
 State 123
 
-   64 else_check: ELSE BEGIN_BODY statements END_BODY .
+   62 branch_check: ELSE_IF BEGIN_PARAM equations . END_PARAM BEGIN_BODY statements END_BODY else_check
 
-    $default  reduce using rule 64 (else_check)
+    END_PARAM  shift, and go to state 125
 
 
 State 124
 
-   61 branch_check: ELSE_IF BEGIN_PARAM equations END_PARAM . BEGIN_BODY statements END_BODY else_check
+   65 else_check: ELSE BEGIN_BODY statements END_BODY .
 
-    BEGIN_BODY  shift, and go to state 125
+    $default  reduce using rule 65 (else_check)
 
 
 State 125
 
-   61 branch_check: ELSE_IF BEGIN_PARAM equations END_PARAM BEGIN_BODY . statements END_BODY else_check
+   62 branch_check: ELSE_IF BEGIN_PARAM equations END_PARAM . BEGIN_BODY statements END_BODY else_check
+
+    BEGIN_BODY  shift, and go to state 126
+
+
+State 126
+
+   62 branch_check: ELSE_IF BEGIN_PARAM equations END_PARAM BEGIN_BODY . statements END_BODY else_check
 
     INTEGER     shift, and go to state 19
     ARRAY       shift, and go to state 20
@@ -1412,7 +1437,7 @@ State 125
 
     $default  reduce using rule 10 (statements)
 
-    statements             go to state 126
+    statements             go to state 127
     statement              go to state 29
     nonsemicolonstatement  go to state 30
     declaration            go to state 31
@@ -1423,26 +1448,26 @@ State 125
     until_loop             go to state 36
 
 
-State 126
-
-   61 branch_check: ELSE_IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements . END_BODY else_check
-
-    END_BODY  shift, and go to state 127
-
-
 State 127
 
-   61 branch_check: ELSE_IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY . else_check
+   62 branch_check: ELSE_IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements . END_BODY else_check
 
-    ELSE  shift, and go to state 115
-
-    $default  reduce using rule 63 (else_check)
-
-    else_check  go to state 128
+    END_BODY  shift, and go to state 128
 
 
 State 128
 
-   61 branch_check: ELSE_IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY else_check .
+   62 branch_check: ELSE_IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY . else_check
 
-    $default  reduce using rule 61 (branch_check)
+    ELSE  shift, and go to state 116
+
+    $default  reduce using rule 64 (else_check)
+
+    else_check  go to state 129
+
+
+State 129
+
+   62 branch_check: ELSE_IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY else_check .
+
+    $default  reduce using rule 62 (branch_check)
