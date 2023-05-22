@@ -253,7 +253,8 @@ statement: declaration {
          | BREAK  {}
          | WRITE BEGIN_PARAM equations END_PARAM {
             CodeNode* node = new CodeNode; 
-            node->code = std::string(". > ") + $3->code + std::string("\n"); 
+            node->code = $3->code;
+            node->code += std::string(". > ") + $3->name + std::string("\n"); 
             $$ = node; 
 }
          | CONTINUE {printf("statement -> CONTINUE\n");}
@@ -426,19 +427,31 @@ factor: L_PAREN equations R_PAREN {
       | INTEGER {CodeNode* node = new CodeNode; $$ = node;}
       | IDENTIFIER {CodeNode* node = new CodeNode; node->name = $1; $$ = node;}
       | NUMBER {CodeNode* node = new CodeNode; node->name = $1; $$ = node;}
-      | function_call {CodeNode* node = new CodeNode; node->code = $1->code; $$ = node;}
-      | arraycall {
-        CodeNode* node = new CodeNode; node->code = $1->code; 
-        $$ = node;  
-      }
+      | function_call {$$ = $1;}
+      | arraycall {$$ = $1;}
 
       ;
 
-function_call: IDENTIFIER BEGIN_PARAM params END_PARAM {}
-             ;
+function_call: IDENTIFIER BEGIN_PARAM params END_PARAM {
+    std::string name = $1;
+    std::string error;
+    if (!find(name)) {
+        yyerror(error.c_str());
+    }
+
+    CodeNode* node = new CodeNode;
+    node->code = $3->code;
+    node->code += std::string("call ") + name + std::string("\n");
+    //node->name = temp;
+    $$ = node;
+};
 
 params: param {$$ = $1;}
-      | param COMMA params {printf("params-> param COMMA params\n");}
+      | param COMMA params {
+        CodeNode* node = new CodeNode;
+        node->code = $1->code + std::string("\n") + $3->code;
+        $$ = node;
+}
       | %empty {CodeNode* node = new CodeNode; $$ = node;}
       ;
 
