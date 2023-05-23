@@ -4,6 +4,7 @@
     #include <vector>
     #include <string.h>
     #include <stdlib.h>
+    #include <sstream>
 
     extern int yylex();
     extern int yyparse();
@@ -30,8 +31,10 @@
 
 
 std::string create_temp() {
+    std::ostringstream ss;
     static int num = 0;
-    std::string value = "_temp" + num;
+    ss << num;
+    std::string value = "_temp" + ss.str();
     num += 1;
     return value;
 } 
@@ -253,7 +256,8 @@ statement: declaration {
          | BREAK  {}
          | WRITE BEGIN_PARAM equations END_PARAM {
             CodeNode* node = new CodeNode; 
-            node->code = std::string(". > ") + $3->code + std::string("\n"); 
+            node->code = $3->code;
+            node->code += std::string(". > ") + $3->name + std::string("\n"); 
             $$ = node; 
 }
          | CONTINUE {printf("statement -> CONTINUE\n");}
@@ -362,6 +366,7 @@ arraycall: IDENTIFIER L_PAREN params R_PAREN {
     node->code = name + std::string(", ") + $3->code;
     $$ = node;
 };
+
 equations: equations addop term {
     std::string temp = create_temp();
     CodeNode* node = new CodeNode;
@@ -391,20 +396,21 @@ addop: ADD {CodeNode* node = new CodeNode; node->code = std::string("+ "); $$ = 
      ;
 
 term: term mulop factor{
+    printf("term -> term mulop factor\n");
     std::string temp = create_temp();
     CodeNode* node = new CodeNode;
     node->code = $1->code + $3->code +  decl_temp_code(temp);
     node->code += $2->code + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
     node->name = temp;
     $$ = node;
-    
 }
-| factor {CodeNode* node = new CodeNode;
+    | factor {
+    printf("term -> factor\n");
+    CodeNode* node = new CodeNode;
     node->code = $1->code;
     node->name = $1->name;
     $$ = node;
-}
-    ;
+};
 
 
 mulop: MULTIPLY {CodeNode* node = new CodeNode; node->code = std::string("* "); $$ = node;}
@@ -426,33 +432,53 @@ factor: L_PAREN equations R_PAREN {
       | INTEGER {CodeNode* node = new CodeNode; $$ = node;}
       | IDENTIFIER {CodeNode* node = new CodeNode; node->name = $1; $$ = node;}
       | NUMBER {CodeNode* node = new CodeNode; node->name = $1; $$ = node;}
-      | function_call {CodeNode* node = new CodeNode; node->code = $1->code; $$ = node;}
+      | function_call {printf("factor -> function_call\n"); $$ = $1;}
       | arraycall {
         CodeNode* node = new CodeNode; node->code = $1->code; 
         $$ = node;  
-      }
+      };
 
-      ;
+function_call: IDENTIFIER BEGIN_PARAM params END_PARAM {
+    printf("function_call -> INTEGER BEGIN_PARAM params END_PARAM\n");
+    std::string name = $1;
+    std::string error;
+    if (!find(name)) {
+        yyerror(error.c_str());
+    }
 
-function_call: IDENTIFIER BEGIN_PARAM params END_PARAM {}
-             ;
+    CodeNode* node = new CodeNode;
+    node->code = $3->code;
+    node->code += std::string("call ") + name + std::string("\n");
+    //node->name = temp;
+    $$ = node;
+};
 
 params: param {$$ = $1;}
-      | param COMMA params {printf("params-> param COMMA params\n");}
+      | param COMMA params {
+            CodeNode* node = new CodeNode;
+            node->code = $1->code + std::string("\n") + $3->code;
+            $$ = node;
+        }
       | %empty {CodeNode* node = new CodeNode; $$ = node;}
       ;
 
 param: IDENTIFIER {
-    CodeNode* node = new CodeNode;
-    node->code = "";
-    node->name = $1;
-    std::string error;
-    //if (!find(node->name, Integer, error)) {
-    //    yyerror(error.c_str());
-    //}
-    $$ = node;
+        CodeNode* node = new CodeNode;
+        std::string name = $1;
+        node->name = name;
+        node->code = std::string("param ") + name + std::string("\n");
+        //std::string error;
+        //if (!find(node->name, Integer, error)) {
+        //    yyerror(error.c_str());
+        //}
+        $$ = node;
 }
-     | NUMBER {CodeNode* node = new CodeNode; node->code = $1; $$ = node;}
+     | NUMBER {
+        CodeNode* node = new CodeNode;
+        std::string num = $1;
+        node->code = std::string("param ") + num + std::string("\n");
+        $$ = node;
+};
 
 
 if_start: IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY branch_check {printf("if_start -> IF BEGIN_BODY if_check END_PARAM BEGIN_BODY statements END_BODY branch_check\n");}
