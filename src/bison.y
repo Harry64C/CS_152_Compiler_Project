@@ -39,6 +39,7 @@ std::string create_temp() {
     return value;
 } 
 
+
 std::string decl_temp_code(std::string &temp) {
     return std::string(". ") + temp + std::string("\n");
 }
@@ -54,6 +55,47 @@ std::string decl_temp_code(std::string &temp) {
             exit(1);
         }
         return &symbol_table[last];
+    }
+    std::vector <std::string> reservedWords;
+    bool inReserve(std::string &value){
+        reservedWords.push_back(std::string("check"));
+        reservedWords.push_back(std::string("plus"));
+        reservedWords.push_back(std::string("minus"));
+        reservedWords.push_back(std::string("mult"));
+        reservedWords.push_back(std::string("divi"));
+        reservedWords.push_back(std::string("mod")); 
+        reservedWords.push_back(std::string("AND"));
+        reservedWords.push_back(std::string("OR"));
+        reservedWords.push_back(std::string("then"));
+        reservedWords.push_back(std::string("or"));
+        reservedWords.push_back(std::string("until"));
+        reservedWords.push_back(std::string("stop"));
+        reservedWords.push_back(std::string("go"));
+        reservedWords.push_back(std::string("inp"));
+        reservedWords.push_back(std::string("outp"));
+        reservedWords.push_back(std::string("eq"));
+        reservedWords.push_back(std::string("gte"));
+        reservedWords.push_back(std::string("lte"));
+        reservedWords.push_back(std::string("dne"));
+        reservedWords.push_back(std::string("gt"));
+        reservedWords.push_back(std::string("lt"));
+        reservedWords.push_back(std::string("funct"));
+        reservedWords.push_back(std::string("arr"));
+        reservedWords.push_back(std::string("inum"));
+        for(int i = 0; i < reservedWords.size(); i++){
+            if(value == reservedWords[i]){
+                return true;
+            }
+        }
+        return false;
+    }
+    bool f_function(std::string &value){
+        for(int i = 0; i < symbol_table.size(); i++){
+            if(symbol_table[i].name == value){
+                return true;
+            }
+        }
+        return false;
     }
 
     // find a particular variable using the symbol table.
@@ -156,6 +198,12 @@ prog_start: functions { // this happens last
     printf("prog_start -> functions\n");
     CodeNode* node = $1; // $1 means the leftmost of the rhs of the grammar
     std::string code = node->code;
+    std::string error;
+    std::string mains = std::string("main");
+    if(!f_function(mains)){
+        error = std::string("No main Function");
+        yyerror(error.c_str());
+    }
     printf("\ngenerated code:\n");
     printf("%s\n", code.c_str());
 }
@@ -180,6 +228,7 @@ function: INTEGER FUNCTION function_ident BEGIN_PARAM arguments END_PARAM BEGIN_
             std::string func_name = $3;
             CodeNode* param = $5;
             CodeNode* body = $8;
+            add_function_to_symbol_table(func_name);
             std::string code = std::string("func ") + func_name + std::string("\n");
             code += param->code;
             code += body->code;
@@ -192,6 +241,11 @@ function: INTEGER FUNCTION function_ident BEGIN_PARAM arguments END_PARAM BEGIN_
 function_ident: IDENTIFIER {
     // add the function to the symbol table.
     std::string func_name = $1;
+    std::string error;
+    if(inReserve(func_name)){
+        error = std::string(" name cannot be a reserved word");
+        yyerror(error.c_str());
+    }
     add_function_to_symbol_table(func_name);
     $$ = $1;
 };
@@ -217,6 +271,14 @@ argument: %empty {
 }
         | INTEGER IDENTIFIER {std::string value = $2; 
         Type t = Integer;
+        std::string error;
+        if(inReserve(value)){
+            error = std::string("variable cannot be defined by a reservedWord");
+        }
+        if(find(value)|| f_function(value)){
+            error = std::string("variable already defined");
+            yyerror(error.c_str());
+        }
         add_variable_to_symbol_table(value, t);
         std::string code = std::string(". ") + value + std::string("\n");
         CodeNode* node = new CodeNode;
@@ -281,6 +343,14 @@ declaration: INTEGER IDENTIFIER {
         printf("declaration -> INTEGER IDENTIFIER\n");
         std::string value = $2; 
         Type t = Integer;
+        std::string error;
+        if(inReserve(value)){
+            error = std::string("variable cannot be defined by a reservedWord");
+        }
+        if(find(value)|| f_function(value)){
+            error = std::string("variable already defined");
+            yyerror(error.c_str());
+        }
         add_variable_to_symbol_table(value, t);
         std::string code = std::string(". ") + value + std::string("\n");
         CodeNode* node = new CodeNode;
@@ -291,6 +361,14 @@ declaration: INTEGER IDENTIFIER {
         printf("declaration -> INTEGER IDENTIFIER ASSIGN equations\n");
         std::string value = $2; 
         Type t = Integer;
+        std::string error;
+        if(inReserve(value)){
+            error = std::string("variable cannot be defined by a reservedWord");
+        }
+        if(find(value)|| f_function(value)){
+            error = std::string("variable already defined");
+            yyerror(error.c_str());
+        }
         add_variable_to_symbol_table(value, t);
         std::string code = std::string(". ") + value + std::string("\n");
         code += std::string("= ") + value + $4->name;
@@ -302,6 +380,14 @@ declaration: INTEGER IDENTIFIER {
         std::string name = $2;
         CodeNode* n = $4; 
         Type t = Integer;
+        std::string error;
+        if(inReserve(name)){
+            error = std::string("variable cannot be defined by a reservedWord");
+        }
+        if(find(name)|| f_function(name)){
+            error = std::string("variable already defined");
+            yyerror(error.c_str());
+        }
         add_variable_to_symbol_table(name, t);
         std::string code = std::string(".[] ") + name + std::string(", ") + n->code  + std::string("\n");
         CodeNode* node = new CodeNode;
@@ -310,12 +396,20 @@ declaration: INTEGER IDENTIFIER {
 }
             | INTEGER IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM {
         std::string name = $2;
-        //std::string error;
+        std::string error;
         //if (!find(name, Integer, error)) {
         //    yyerror(error.c_str());
         //}
+        
 
         Type t = Integer;
+        if(inReserve(name)){
+            error = std::string("variable cannot be defined by a reservedWord");
+        }
+        if(find(name)|| f_function(name)){
+            error = std::string("variable already defined");
+            yyerror(error.c_str());
+        }
         add_variable_to_symbol_table(name, t);
         std::string code = std::string(". ") + name + std::string("\n");
         CodeNode* node = new CodeNode;
@@ -328,11 +422,18 @@ declaration: INTEGER IDENTIFIER {
 
 assignment: IDENTIFIER ASSIGN equations {
         std::string name = $1;
+         std::string error;
+         
+        if (!find(name)) {
+            error = std::string("UNKNOWN VARIABLE");
+            yyerror(error.c_str());
+        }
         CodeNode* node = new CodeNode;
         node->code = $3->code;
         node->code += std::string("= ") + name + std::string(", ") + $3->name + std::string("\n");
         $$ = node;
 }
+          
           | arraycall ASSIGN equations {
             
             printf("arraycall ASSIGN equations\n");
@@ -430,9 +531,14 @@ factor: L_PAREN equations R_PAREN {
     $$ = node;
 }
       | INTEGER {CodeNode* node = new CodeNode; $$ = node;}
-      | IDENTIFIER {CodeNode* node = new CodeNode; node->name = $1; $$ = node;}
-      | NUMBER {CodeNode* node = new CodeNode; node->name = $1; $$ = node;}
       | function_call {printf("factor -> function_call\n"); $$ = $1;}
+      | IDENTIFIER {CodeNode* node = new CodeNode; node->name = $1; 
+        std::string error;
+        if (!find(node->name)) {
+            error = std::string("UNKNOWN VARIABLE\n");
+            yyerror(error.c_str());
+        } $$ = node;}
+      | NUMBER {CodeNode* node = new CodeNode; node->name = $1; $$ = node;}
       | arraycall {
         CodeNode* node = new CodeNode; node->code = $1->code; 
         $$ = node;  
@@ -442,7 +548,8 @@ function_call: IDENTIFIER BEGIN_PARAM params END_PARAM {
     printf("function_call -> INTEGER BEGIN_PARAM params END_PARAM\n");
     std::string name = $1;
     std::string error;
-    if (!find(name)) {
+    if (!f_function(name)) {
+        error = std::string("Undefined function");
         yyerror(error.c_str());
     }
 
@@ -467,10 +574,11 @@ param: IDENTIFIER {
         std::string name = $1;
         node->name = name;
         node->code = std::string("param ") + name + std::string("\n");
-        //std::string error;
-        //if (!find(node->name, Integer, error)) {
-        //    yyerror(error.c_str());
-        //}
+        std::string error;
+        if (!find(node->name)) {
+            error = std::string("UNKNOWN VARIABLE\n");
+            yyerror(error.c_str());
+        }
         $$ = node;
 }
      | NUMBER {
