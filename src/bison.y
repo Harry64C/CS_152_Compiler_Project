@@ -576,7 +576,6 @@ function_call: IDENTIFIER BEGIN_PARAM params END_PARAM  {
     }
 
     ifFunc = true;
-    std::string name = $1;
     CodeNode* node = new CodeNode;
     node->name = $1;
     node->code = $3->code;
