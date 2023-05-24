@@ -332,14 +332,13 @@ declaration: INTEGER IDENTIFIER {
 
         node->code += std::string(".< ") + name + std::string("\n");
         $$ = node;
-}
-           ;
+};
 
 assignment: IDENTIFIER ASSIGN equations {
         std::string name = $1;
         CodeNode* node = new CodeNode;
-        node->code = $3->code;
         CodeNode* eq = $3;
+        node->code = eq->code;
         if(ifFunc == true){
             node->code += name + std::string("\n");
             ifFunc = false;
@@ -350,10 +349,10 @@ assignment: IDENTIFIER ASSIGN equations {
         $$ = node;
 }
           | arraycall ASSIGN equations {
-            
-            printf("arraycall ASSIGN equations\n");
             CodeNode* node = new CodeNode;
-            node->code = std::string("[]= ") + $1->code + std::string(", ") + $3->name + std::string("\n");
+            CodeNode* eq = $3;
+            node->code = eq->code;
+            node->code += std::string("[]= ") + $1->code + std::string(", ") + $3->name + std::string("\n");
             $$ = node;
 }
 
@@ -387,15 +386,13 @@ equations: equations addop term {
     node->name = temp;
 
     $$ = node;
-    
 }
-| term {
-    CodeNode* node = new CodeNode;
-    node->code = $1->code;
-    node->name = $1->name;
-    $$ = node;
-}
-;
+    | term {
+        CodeNode* node = new CodeNode;
+        node->code = $1->code;
+        node->name = $1->name;
+        $$ = node;
+    };
 
 addop: ADD {CodeNode* node = new CodeNode; node->code = std::string("+ "); $$ = node;}
      | SUBTRACT {CodeNode* node = new CodeNode; node->code = std::string("- "); $$ = node;}
@@ -441,7 +438,8 @@ factor: L_PAREN equations R_PAREN {
     node->name = $2->name;
     $$ = node;
 }
-      | INTEGER {CodeNode* node = new CodeNode; $$ = node;}
+      | INTEGER {
+        CodeNode* node = new CodeNode; $$ = node;}
       | IDENTIFIER {CodeNode* node = new CodeNode; node->name = $1; $$ = node;}
       | NUMBER {CodeNode* node = new CodeNode; node->name = $1; $$ = node;}
       | function_call {
@@ -454,8 +452,7 @@ factor: L_PAREN equations R_PAREN {
       | arraycall {
         CodeNode* node = new CodeNode; 
         CodeNode* ac = $1;
-        //node->name = $1->code;
-        node->code = std::string("=[] ") + ac->code + ac->name + std::string("\n");
+        node->code = std::string("=[] ") + ac->code + std::string("\n");
         $$ = node;  
       };
 
