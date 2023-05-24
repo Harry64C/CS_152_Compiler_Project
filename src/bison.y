@@ -6,6 +6,8 @@
     #include <stdlib.h>
     #include <sstream>
 
+
+    static int count;
     extern int yylex();
     extern int yyparse();
     extern FILE* yyin;
@@ -32,7 +34,12 @@
         std::vector<Symbol> declarations;
     };
 
-
+void addcount(){
+    count++;
+}
+void subtractcount(){
+    count = 0;
+}
 std::string create_temp() {
     std::ostringstream ss;
     static int num = 0;
@@ -265,6 +272,7 @@ arguments: argument {
          std::string code = arg->code + args->code;
          CodeNode *node = new CodeNode;
          node->code = code;
+         addcount();
          $$ = node;
 };
 
@@ -284,6 +292,9 @@ argument: %empty {
         }
         add_variable_to_symbol_table(value, t);
         std::string code = std::string(". ") + value + std::string("\n");
+        std::ostringstream s;
+        s << count;
+        code += std::string("= ") + value + std::string(", ") + std::string("$") + s.str() + std::string("\n");
         CodeNode* node = new CodeNode;
         node->code = code;
         $$ = node;
@@ -444,7 +455,7 @@ assignment: IDENTIFIER ASSIGN equations {
             ifFunc = false;
         }
         else{
-            node->code += name + std::string(", ") + $3->name + std::string("\n");
+            node->code += std::string("= ")+ name + std::string(", ") + $3->name + std::string("\n");
         }
         $$ = node;
 }
@@ -589,6 +600,7 @@ params: param {$$ = $1;}
             CodeNode* node = new CodeNode;
             node->code = $1->code + std::string("\n") + $3->code + std::string("\n") ;
             $$ = node;
+
         }
       | %empty {CodeNode* node = new CodeNode; $$ = node;}
       ;
