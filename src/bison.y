@@ -19,6 +19,7 @@
     #define YYERROR_VERBOSE 1
     void yyerror(const char* s);
     bool ifFunc = false;
+    bool ifAssignArray = false;
     std::string varName; 
     bool ifArr = false;
 
@@ -199,7 +200,6 @@ std::string decl_temp_code(std::string &temp) {
 %%
 
 prog_start: functions { // this happens last
-    printf("prog_start -> functions\n");
     CodeNode* node = $1; // $1 means the leftmost of the rhs of the grammar
     std::string code = node->code;
     std::string error;
@@ -208,12 +208,11 @@ prog_start: functions { // this happens last
         error = std::string("No main Function");
         yyerror(error.c_str());
     }
-    printf("\ngenerated code:\n");
+    //printf("generated code:\n");
     printf("%s\n", code.c_str());
 }
           
 functions: function functions {
-    printf("prog_start -> function functions\n");
     CodeNode* func = $1;
     CodeNode* funcs = $2;
     std::string code = func->code + funcs->code;
@@ -228,7 +227,6 @@ functions: function functions {
          
 
 function: INTEGER FUNCTION function_ident BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY {
-            printf("function -> INTEGER FUNCTION function_ident BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY\n");
             std::string func_name = $3;
             CodeNode* argumen = $5;
             CodeNode* body = $8;
@@ -288,7 +286,7 @@ argument: %empty {
         std::string code = std::string(". ") + value + std::string("\n");
         std::ostringstream s;
         s << count;
-        printf("count is %d", count);
+        //printf("count is %d", count);
         code += std::string("= ") + value + std::string(", ") + std::string("$") + s.str() + std::string("\n");
         CodeNode* node = new CodeNode;
         node->code = code;
@@ -297,18 +295,15 @@ argument: %empty {
 };
 
 statements: %empty {
-    printf("statements -> epsilon\n");
     CodeNode* node = new CodeNode;
     $$ = node;
 }
         | statement SEMICOLON statements {
-    printf("statements -> statement SEMICOLON statements\n");
     CodeNode* node = new CodeNode;
     node->code = $1->code + $3->code;
     $$ = node;
 }
         | nonsemicolonstatement statements {
-    printf("statements -> nonsemicolonstatement statements\n");
     CodeNode* node = new CodeNode;
     node->code = $1->code + $2->code;
     $$ = node;
@@ -316,7 +311,6 @@ statements: %empty {
         
 
 statement: declaration {
-    printf("statement -> declaration\n");
     CodeNode* decl = $1; 
     std::string code = decl->code; 
     CodeNode* node = new CodeNode; 
@@ -332,7 +326,7 @@ statement: declaration {
             node->code += std::string(". > ") + $3->name + std::string("\n"); 
             $$ = node; 
 }
-         | CONTINUE {printf("statement -> CONTINUE\n");}
+         | CONTINUE {}
          | RETURN equations {
             CodeNode* node = new CodeNode; 
             CodeNode* eq = $2;
@@ -342,16 +336,13 @@ statement: declaration {
          };
 
 nonsemicolonstatement: if_start {
-    printf("nonsemicolonstatement -> if_start\n");
     $$ = $1;
 }
          | until_loop {
-            printf("nonsemicolonstatement -> until_loop\n");
             $$ = $1;
 };
          
 declaration: INTEGER IDENTIFIER {
-        printf("declaration -> INTEGER IDENTIFIER\n");
         std::string value = $2; 
         Type t = Integer;
         std::string error;
@@ -369,7 +360,6 @@ declaration: INTEGER IDENTIFIER {
         $$ = node;
 }
            | INTEGER IDENTIFIER ASSIGN equations {
-        printf("declaration -> INTEGER IDENTIFIER ASSIGN equations\n");
         std::string value = $2; 
         Type t = Integer;
         std::string error;
@@ -388,8 +378,15 @@ declaration: INTEGER IDENTIFIER {
 
         node->code = std::string(". ") + value + std::string("\n");
         CodeNode* eq = $4;
-        node->code += eq->code;
-        node->code += std::string("= ") + value + std::string(", ") + eq->name + std::string("\n");
+
+        if(ifAssignArray){
+            node->code = std::string("=[] ") + value + std::string(", ") + eq->code + std::string("\n");
+            ifAssignArray = false;
+        }
+        else {
+            node->code += eq->code;
+            node->code += std::string("= ") + value + std::string(", ") + eq->name + std::string("\n");
+        }
         $$ = node;
 }
            | ARRAY IDENTIFIER L_PAREN factor R_PAREN {
@@ -446,9 +443,13 @@ assignment: IDENTIFIER ASSIGN equations {
         CodeNode* node = new CodeNode;
         CodeNode* eq = $3;
         node->code = eq->code;
-        if(ifFunc == true){
+        if(ifFunc){
             node->code += name + std::string("\n");
             ifFunc = false;
+        }
+        else if(ifAssignArray){
+            node->code = std::string("=[] ") + name + std::string(", ") + eq->code + std::string("\n");
+            ifAssignArray = false;
         }
         else{
             node->code += std::string("= ")+ name + std::string(", ") + $3->name + std::string("\n");
@@ -477,7 +478,6 @@ assignment: IDENTIFIER ASSIGN equations {
 }
 
 arraycall: IDENTIFIER L_PAREN factor R_PAREN {
-    
     std::string name = $1;
     CodeNode* node = new CodeNode;
     CodeNode* fac = $3;
@@ -513,7 +513,6 @@ addop: ADD {CodeNode* node = new CodeNode; node->code = std::string("+ "); $$ = 
      ;
 
 term: term mulop factor{
-    printf("term -> term mulop factor\n");
     std::string temp = create_temp();
     CodeNode* node = new CodeNode;
     node->code = $1->code + $3->code +  decl_temp_code(temp);
@@ -522,7 +521,6 @@ term: term mulop factor{
     $$ = node;
 }
     | factor {
-    printf("term -> factor\n");
     CodeNode* node = new CodeNode;
     node->code = $1->code;
     node->name = $1->name;
@@ -560,21 +558,17 @@ factor: L_PAREN equations R_PAREN {
 }
       | NUMBER {CodeNode* node = new CodeNode; node->name = $1; $$ = node;}
       | function_call {
-        //printf("factor -> function_call\n"); 
         CodeNode* node = new CodeNode; node->code = $1->code;
         node->name = $1->name;
         $$ = node;
       }
 
       | arraycall {
-        CodeNode* node = new CodeNode; 
-        CodeNode* ac = $1;
-        node->code = std::string("=[] ") + ac->code + std::string("\n");
-        $$ = node;  
+        ifAssignArray = true;
+        $$ = $1;  
       };
 
 function_call: IDENTIFIER BEGIN_PARAM params END_PARAM  {
-    printf("function_call -> INTEGER BEGIN_PARAM params END_PARAM\n");
     std::string name = $1;
     std::string error;
     if (!f_function(name)) {
@@ -605,7 +599,7 @@ param: IDENTIFIER {
         CodeNode* node = new CodeNode;
         std::string name = $1;
         node->name = name;
-        node->code = std::string("param ") + name + std::string("\n");
+        node->code = std::string("param ") + name;
         std::string error;
         if (!find(node->name)) {
             error = std::string("UNKNOWN VARIABLE\n");
@@ -621,19 +615,19 @@ param: IDENTIFIER {
 };
 
 
-if_start: IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY branch_check {printf("if_start -> IF BEGIN_BODY if_check END_PARAM BEGIN_BODY statements END_BODY branch_check\n");}
+if_start: IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY branch_check {}
         ;
 
 
-branch_check: ELSE_IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY else_check {printf("branch_check -> ELSE_IF BEGIN_BODY if_check END_PARAM BEGIN_BODY statements END_BODY else_check\n");}
-            | else_check {printf("branch_check -> else_check\n");}
+branch_check: ELSE_IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY else_check {}
+            | else_check {}
             ;
 
 else_check: %empty {CodeNode* node = new CodeNode; $$ = node;}
-          | ELSE BEGIN_BODY statements END_BODY {printf("else_check -> ELSE BEGIN_BODY statements END_BODY\n");}
+          | ELSE BEGIN_BODY statements END_BODY {}
           ;
 
-until_loop: WHILE BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY {printf("until_loop -> WHILE BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY\n");}
+until_loop: WHILE BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY {}
           ;
 
 
