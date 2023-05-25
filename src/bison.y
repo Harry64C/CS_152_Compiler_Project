@@ -7,7 +7,7 @@
     #include <sstream>
 
 
-    static int count;
+    
     extern int yylex();
     extern int yyparse();
     extern FILE* yyin;
@@ -33,13 +33,7 @@
         std::string name;
         std::vector<Symbol> declarations;
     };
-
-void addcount(){
-    count++;
-}
-void subtractcount(){
-    count = 0;
-}
+static int count;
 std::string create_temp() {
     std::ostringstream ss;
     static int num = 0;
@@ -272,13 +266,13 @@ arguments: argument {
          std::string code = arg->code + args->code;
          CodeNode *node = new CodeNode;
          node->code = code;
-         addcount();
          $$ = node;
 };
 
 argument: %empty {
     CodeNode *node = new CodeNode;
     $$ = node;
+    count = 0;
 }
         | INTEGER IDENTIFIER {std::string value = $2; 
         Type t = Integer;
@@ -294,9 +288,11 @@ argument: %empty {
         std::string code = std::string(". ") + value + std::string("\n");
         std::ostringstream s;
         s << count;
+        printf("count is %d", count);
         code += std::string("= ") + value + std::string(", ") + std::string("$") + s.str() + std::string("\n");
         CodeNode* node = new CodeNode;
         node->code = code;
+        count++;
         $$ = node;
 };
 
