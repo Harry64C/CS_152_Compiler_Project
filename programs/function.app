@@ -19,10 +19,8 @@ inum funct main{}
 	x ~ 50;
 	y ~ add{w, x};
 	#prints "150", the sum of 100 and 50;
-	outp{c};	
 
 	z ~ multiply{w, y};
 	#prints "22500", the result of 150 * 150;
 	outp{z};	
-	return 1;
 ]
