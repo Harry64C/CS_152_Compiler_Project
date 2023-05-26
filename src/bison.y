@@ -562,8 +562,15 @@ factor: L_PAREN equations R_PAREN {
       }
 
       | arraycall {
+        std::string temp = create_temp();
+        
         ifArray = true;
-        $$ = $1;  
+        CodeNode* node = new CodeNode;
+        node->code = decl_temp_code(temp);
+        node->code += std::string("=[] ") +temp +std::string(" , ") + $1->code + std::string("\n");
+        node->name = temp;
+        $$ = node;
+
       };
 
 function_call: IDENTIFIER BEGIN_PARAM params END_PARAM  {

@@ -25,5 +25,4 @@ inum funct main{}[
     z ~ (x plus y) mult 24;
     outp{z};
 
-    return 0;
 ]

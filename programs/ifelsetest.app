@@ -16,5 +16,4 @@ inum funct main{}[
 
   outp{o};
   
-  return 0;
 ]
