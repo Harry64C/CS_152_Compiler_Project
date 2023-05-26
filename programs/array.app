@@ -20,5 +20,4 @@ inum funct main{}[
 
     a(3) ~ a(0) mult (a(1) plus c);
     outp{a(3)};    ## should print out 840; since 840 = 8 * (100 + 5)
-    return 0;
 ]

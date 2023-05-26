@@ -10,5 +10,4 @@ inum funct main{}[
         outp{i};
     ]
 
-    return 0;
 ]

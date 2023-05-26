@@ -23,5 +23,4 @@ inum funct main{}
     z $ favoriteWord;
 	outp{z};
     	
-	return 0;
 ]

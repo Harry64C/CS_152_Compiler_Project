@@ -24,5 +24,4 @@ inum funct main{}[
     #inum j;
     #j ~ 1 plus add{a, b};
 
-    return 0;
 ]
