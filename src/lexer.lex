@@ -20,7 +20,6 @@ LETTER [a-zA-Z]
 "   "  {col_num +=4;}
 \t     {col_num+=4;}
 \n     {lineNumber++;col_num = 1;}
-"."    { return DOT; col_num +=1; }
 "inum" { return INTEGER; col_num+=4;}
 "arr" { return ARRAY; col_num+=3;}
 "funct" { return FUNCTION; col_num+=5;}

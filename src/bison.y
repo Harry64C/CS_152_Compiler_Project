@@ -7,7 +7,6 @@
     #include <sstream>
 
 
-    
     extern int yylex();
     extern int yyparse();
     extern FILE* yyin;
@@ -19,7 +18,7 @@
     #define YYERROR_VERBOSE 1
     void yyerror(const char* s);
     bool ifFunc = false;
-    bool ifAssignArray = false;
+    bool ifArray = false;
     std::string varName; 
     bool ifArr = false;
 
@@ -163,7 +162,7 @@ std::string decl_temp_code(std::string &temp) {
 }
 %start prog_start
 %token INTEGER ARRAY FUNCTION ASSIGN ADD SUBTRACT MULTIPLY DIVISION MOD EQ GTE LTE NEQ GT LT BEGIN_BODY END_BODY BEGIN_PARAM END_PARAM 
-%token L_PAREN R_PAREN IF ELSE ELSE_IF WHILE BREAK CONTINUE READ WRITE RETURN SEMICOLON COMMA AND OR DOT 
+%token L_PAREN R_PAREN IF ELSE ELSE_IF WHILE BREAK CONTINUE READ WRITE RETURN SEMICOLON COMMA AND OR 
 %token <op_val> NUMBER 
 %token <op_val> IDENTIFIER
 //%type  <op_val> symbol 
@@ -324,7 +323,7 @@ statement: declaration {
          | WRITE BEGIN_PARAM equations END_PARAM {
             CodeNode* node = new CodeNode; 
             node->code = $3->code;
-            node->code += std::string(".> ") + $3->name + std::string("\n"); 
+            node->code += std::string(".> ") + $3->name + std::string("\n");             
             $$ = node; 
 }
          | CONTINUE {}
@@ -380,9 +379,9 @@ declaration: INTEGER IDENTIFIER {
         node->code = std::string(". ") + value + std::string("\n");
         CodeNode* eq = $4;
 
-        if(ifAssignArray){
+        if(ifArray){
             node->code = std::string("=[] ") + value + std::string(", ") + eq->code + std::string("\n");
-            ifAssignArray = false;
+            ifArray = false;
         }
         else {
             node->code += eq->code;
@@ -448,9 +447,9 @@ assignment: IDENTIFIER ASSIGN equations {
             node->code += name + std::string("\n");
             ifFunc = false;
         }
-        else if(ifAssignArray){
+        else if(ifArray){
             node->code = std::string("=[] ") + name + std::string(", ") + eq->code + std::string("\n");
-            ifAssignArray = false;
+            ifArray = false;
         }
         else{
             node->code += std::string("= ")+ name + std::string(", ") + $3->name + std::string("\n");
@@ -538,10 +537,8 @@ mulop: MULTIPLY {CodeNode* node = new CodeNode; node->code = std::string("* "); 
      
 factor: L_PAREN equations R_PAREN {
     CodeNode* eq = $2;
-    std::string code = std::string("(") + eq->code + std::string(")");
-
     CodeNode *node = new CodeNode;
-    node->code = code;
+    node->code = eq->code;
     node->name = $2->name;
     $$ = node;
 }
@@ -565,7 +562,7 @@ factor: L_PAREN equations R_PAREN {
       }
 
       | arraycall {
-        ifAssignArray = true;
+        ifArray = true;
         $$ = $1;  
       };
 
