@@ -269,8 +269,8 @@ arguments: argument {
 
 argument: %empty {
     CodeNode *node = new CodeNode;
-    $$ = node;
     count = 0;
+    $$ = node;
 }
         | INTEGER IDENTIFIER {std::string value = $2; 
         Type t = Integer;
@@ -296,6 +296,7 @@ argument: %empty {
 
 statements: %empty {
     CodeNode* node = new CodeNode;
+    count = 0;
     $$ = node;
 }
         | statement SEMICOLON statements {
@@ -323,7 +324,7 @@ statement: declaration {
          | WRITE BEGIN_PARAM equations END_PARAM {
             CodeNode* node = new CodeNode; 
             node->code = $3->code;
-            node->code += std::string(". > ") + $3->name + std::string("\n"); 
+            node->code += std::string(".> ") + $3->name + std::string("\n"); 
             $$ = node; 
 }
          | CONTINUE {}
