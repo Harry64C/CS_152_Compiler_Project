@@ -593,8 +593,7 @@ factor: L_PAREN equations R_PAREN {
         }
         $$ = node;
 }
-      | NUMBER {std::string temp = create_temp(); CodeNode* node = new CodeNode; if(atoi($1) < 0){int ssd = -atoi($1);std::ostringstream ss;
-    ss << ssd; node->code = decl_temp_code(temp) + std::string("- ") + temp + std::string(", 0, ") + ss.str() + std::string("\n"); node->name = temp;} else{ node->name = $1;} $$ = node;}
+      | NUMBER {std::string temp = create_temp(); CodeNode* node = new CodeNode; node->name = $1; $$ = node;}
       | function_call {
         CodeNode* node = new CodeNode; node->code = $1->code;
         node->name = $1->name;
@@ -604,7 +603,6 @@ factor: L_PAREN equations R_PAREN {
       | arraycall {
         std::string temp = create_temp();
         
-        ifArray = true;
         CodeNode* node = new CodeNode;
         node->code = decl_temp_code(temp);
         node->code += std::string("=[] ") +temp +std::string(" , ") + $1->code + std::string("\n");
