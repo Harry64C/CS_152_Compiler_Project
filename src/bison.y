@@ -44,6 +44,7 @@ std::string create_temp() {
 } 
 
 
+
 std::string decl_temp_code(std::string &temp) {
     return std::string(". ") + temp + std::string("\n");
 }
@@ -101,7 +102,19 @@ std::string decl_temp_code(std::string &temp) {
         }
         return false;
     }
-
+    bool isArray(std::string &name){
+        Function *f = get_function();
+        for(int i = 0; i < f->declarations.size(); i++){
+            Symbol *s = &f->declarations[i];
+            if(s->name == name && s->type == Array){
+                return true;
+            }
+            else if(s->name == name){
+                return false;
+            }
+        }
+        return false;
+    }
     // find a particular variable using the symbol table.
     // grab the most recent function, and linear search to
     // find the symbol you are looking for.
@@ -392,7 +405,7 @@ declaration: INTEGER IDENTIFIER {
            | ARRAY IDENTIFIER L_PAREN factor R_PAREN {
         std::string name = $2;
         CodeNode* n = $4; 
-        Type t = Integer;
+        Type t = Array;
         std::string error;
         if(inReserve(name)){
             error = std::string("variable cannot be defined by a reservedWord");
@@ -440,6 +453,10 @@ assignment: IDENTIFIER ASSIGN equations {
             error = std::string("UNKNOWN VARIABLE");
             yyerror(error.c_str());
         }
+        if(isArray(name)){
+            error = std::string("variable is an array and is missing array index");
+            yyerror(error.c_str());
+        }
         CodeNode* node = new CodeNode;
         CodeNode* eq = $3;
         node->code = eq->code;
@@ -467,11 +484,18 @@ assignment: IDENTIFIER ASSIGN equations {
 
           | IDENTIFIER ASSIGN READ BEGIN_PARAM END_PARAM {
             std::string name = $1;
-            //std::string error;
+            std::string error;
             //if (!find(name, Integer, error)) {
             //    yyerror(error.c_str());
             //}
-
+            if (!find(name)) {
+            error = std::string("UNKNOWN VARIABLE");
+            yyerror(error.c_str());
+            }
+            if(isArray(name)){
+                error = std::string("variable is an array and is missing array index");
+                yyerror(error.c_str());
+            }
             CodeNode* node = new CodeNode;
             node->code = std::string(".< ") + name + std::string("\n");
             $$ = node;
@@ -480,6 +504,17 @@ assignment: IDENTIFIER ASSIGN equations {
 arraycall: IDENTIFIER L_PAREN factor R_PAREN {
     std::string name = $1;
     CodeNode* node = new CodeNode;
+    std::string error;
+         
+    if (!find(name)) {
+        error = std::string("UNKNOWN VARIABLE");
+        yyerror(error.c_str());
+    }
+    if(!isArray(name)){
+        error = std::string("Variable is not an array");
+        yyerror(error.c_str());
+    }
+
     CodeNode* fac = $3;
     node->code = fac->code;
     node->code += name + std::string(", ") + fac->name;
@@ -550,6 +585,10 @@ factor: L_PAREN equations R_PAREN {
         std::string error;
         if (!find(node->name)) {
             error = std::string("UNKNOWN VARIABLE\n");
+            yyerror(error.c_str());
+        }
+        if(isArray(node->name)){
+            error = std::string("variable is an array and is missing array index");
             yyerror(error.c_str());
         }
         $$ = node;

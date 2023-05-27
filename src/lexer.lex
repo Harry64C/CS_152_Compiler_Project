@@ -59,7 +59,7 @@ LETTER [a-zA-Z]
 "," { return COMMA ; col_num++;}
 "#".* {}
 
-{DIGIT}+ { 
+("-")*{DIGIT}+ { 
    col_num += yyleng;
    char * token = new char[yyleng];
    strcpy(token, yytext);
