@@ -1,6 +1,8 @@
 inum funct main{}[
-    inum x;
+    #inum x;
 
-    arr x{10};
+    arr x(-1);
+
+    
 
 ]
