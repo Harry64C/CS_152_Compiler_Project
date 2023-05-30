@@ -22,7 +22,8 @@
     std::string varName; 
     bool ifArr = false;
     bool leZero = false;
-
+    int loop = 0;
+    int ifcount = 0;
     enum Type { Integer, Array };
 
     struct Symbol {
@@ -672,7 +673,20 @@ param: IDENTIFIER {
 };
 
 
-if_start: IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY branch_check {}
+if_start: IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY branch_check {
+    CodeNode* node = new CodeNode;
+        std::ostringstream ll;
+        ll << ifcount;
+        node->code = std::string(": beginif") +  ll.str() + std::string("\n");
+        node->code += $3->code;
+        node->code += std::string("?:= bodyif") + ll.str() + std::string(", ") + $3->name + std::string("\n");
+        node->code += std::string(":= endif") + ll.str() + std::string("\n");
+        node->code += std::string(": bodyif") + ll.str() + std::string("\n");
+        node->code += $6->code;
+        node->code += std::string(": endif") + ll.str() + std::string("\n");
+        ifcount++;
+        $$ = node;
+}
         ;
 
 
@@ -684,7 +698,20 @@ else_check: %empty {CodeNode* node = new CodeNode; $$ = node;}
           | ELSE BEGIN_BODY statements END_BODY {}
           ;
 
-until_loop: WHILE BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY {}
+until_loop: WHILE BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY {
+        CodeNode* node = new CodeNode;
+        std::ostringstream ll;
+        ll << loop;
+        node->code = std::string(": beginloop") +  ll.str() + std::string("\n");
+        node->code += $3->code;
+        node->code += std::string("?:= bodyloop") + ll.str() + std::string(", ") + $3->name + std::string("\n");
+        node->code += std::string(":= endloop") + ll.str() + std::string("\n");
+        node->code += std::string(": bodyloop") + ll.str() + std::string("\n");
+        node->code += $6->code + std::string(":= beginloop") + ll.str() + std::string("\n");
+        node->code += std::string(": endloop") + ll.str() + std::string("\n");
+        loop++;
+        $$ = node;
+}
           ;
 
 
