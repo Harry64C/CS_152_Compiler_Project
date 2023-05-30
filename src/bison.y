@@ -25,6 +25,7 @@
     int loop = 0;
     int ifcount = 0;
     enum Type { Integer, Array };
+    std::ostringstream ll;
 
     struct Symbol {
         std::string name;
@@ -675,14 +676,20 @@ param: IDENTIFIER {
 
 if_start: IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY branch_check {
     CodeNode* node = new CodeNode;
-        std::ostringstream ll;
+        //std::ostringstream ll;
         ll << ifcount;
         node->code = std::string(": beginif") +  ll.str() + std::string("\n");
         node->code += $3->code;
         node->code += std::string("?:= bodyif") + ll.str() + std::string(", ") + $3->name + std::string("\n");
-        node->code += std::string(":= endif") + ll.str() + std::string("\n");
+        //node->code += std::string(":= endif") + ll.str() + std::string("\n");
+        node->code += $8->name;
+        //If body code
         node->code += std::string(": bodyif") + ll.str() + std::string("\n");
         node->code += $6->code;
+        node->code += std::string(":= endif") + ll.str() + std::string("\n");
+        //Other branches here
+        node->code += $8->code;
+        //End of conditional branches
         node->code += std::string(": endif") + ll.str() + std::string("\n");
         ifcount++;
         $$ = node;
@@ -694,8 +701,20 @@ branch_check: ELSE_IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_
             | else_check {}
             ;
 
-else_check: %empty {CodeNode* node = new CodeNode; $$ = node;}
-          | ELSE BEGIN_BODY statements END_BODY {}
+else_check: %empty {
+            CodeNode* node = new CodeNode; $$ = node;
+            node->name = std::string(":= endif") + ll.str() + std::string("\n");
+          }
+          | ELSE BEGIN_BODY statements END_BODY {
+            //std::ostringstream ll;
+            //ll.str("");
+            //ll << ifcount;
+            CodeNode* node = new CodeNode;
+            node->name = std::string(":= else") + std::string("\n");
+            node->code += std::string(": else") + std::string("\n");
+            node->code += $3->code;
+            $$ = node;
+          }
           ;
 
 until_loop: WHILE BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY {

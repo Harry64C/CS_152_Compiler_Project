@@ -2,15 +2,16 @@ inum funct main{}[
 
   inum m;
   inum n;
-  inum o;
+  inum o ~ 3;
+  outp{o};
 
   n ~ 5;
-  check{n gte 100} [
+  check{((n gte 100) gte 10) OR (n lte 10)} [
     outp{n};
   ]
     
   then[
-    m ~ n minus 1;
+    m ~ 10;
     outp{m};
   ]
 
