@@ -25,7 +25,7 @@
     int loop = 0;
     int ifcount = 0;
     enum Type { Integer, Array };
-    std::ostringstream ll;
+    std::string curloop = std::string("beginloop");
 
     struct Symbol {
         std::string name;
@@ -335,14 +335,25 @@ statement: declaration {
 }
          | assignment {$$ = $1;}
          | function_call  {$$ = $1;}
-         | BREAK  {}
+         | BREAK  {
+            CodeNode* node = new CodeNode;
+            std::ostringstream ll;
+            ll << loop;
+            node->code = std::string(":= endloop") + ll.str() + std::string("\n");
+            $$ = node;
+         }
          | WRITE BEGIN_PARAM equations END_PARAM {
             CodeNode* node = new CodeNode; 
             node->code = $3->code;
             node->code += std::string(".> ") + $3->name + std::string("\n");             
             $$ = node; 
 }
-         | CONTINUE {}
+         | CONTINUE {CodeNode* node = new CodeNode;
+         std::ostringstream ls;
+         ls << loop;
+         node->code = std::string(":= ") + curloop + ls.str() + std::string("\n");
+         $$ = node;
+         }
          | RETURN equations {
             CodeNode* node = new CodeNode; 
             CodeNode* eq = $2;
@@ -551,7 +562,7 @@ equations: equations addop term {
 
 addop: ADD {CodeNode* node = new CodeNode; node->code = std::string("+ "); $$ = node;}
      | SUBTRACT {CodeNode* node = new CodeNode; node->code = std::string("- "); $$ = node;}
-     | EQ {CodeNode* node = new CodeNode; node->code = std::string("+ "); $$ = node;}
+     | EQ {CodeNode* node = new CodeNode; node->code = std::string("== "); $$ = node;}
      | GTE {CodeNode* node = new CodeNode; node->code = std::string(">= "); $$ = node;}
      | LTE {CodeNode* node = new CodeNode; node->code = std::string("<= "); $$ = node;}
      | NEQ {CodeNode* node = new CodeNode; node->code = std::string("!= "); $$ = node;}
@@ -676,22 +687,22 @@ param: IDENTIFIER {
 
 if_start: IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY branch_check {
     CodeNode* node = new CodeNode;
-        //std::ostringstream ll;
+        std::ostringstream ll;
         ll << ifcount;
         node->code = std::string(": beginif") +  ll.str() + std::string("\n");
         node->code += $3->code;
         node->code += std::string("?:= bodyif") + ll.str() + std::string(", ") + $3->name + std::string("\n");
-        //node->code += std::string(":= endif") + ll.str() + std::string("\n");
-        node->code += $8->name;
+        node->code += std::string(":= ") + $8->name + std::string("\n");
         //If body code
         node->code += std::string(": bodyif") + ll.str() + std::string("\n");
         node->code += $6->code;
         node->code += std::string(":= endif") + ll.str() + std::string("\n");
         //Other branches here
-        node->code += $8->code;
         //End of conditional branches
+        node->code += $8->code;
         node->code += std::string(": endif") + ll.str() + std::string("\n");
         ifcount++;
+        
         $$ = node;
 }
         ;
@@ -703,6 +714,8 @@ branch_check: ELSE_IF BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_
 
 else_check: %empty {
             CodeNode* node = new CodeNode; $$ = node;
+            std::ostringstream ll;
+            ll << ifcount;
             node->name = std::string(":= endif") + ll.str() + std::string("\n");
           }
           | ELSE BEGIN_BODY statements END_BODY {
@@ -712,6 +725,7 @@ else_check: %empty {
             CodeNode* node = new CodeNode;
             node->name = std::string(":= else") + std::string("\n");
             node->code += std::string(": else") + std::string("\n");
+            node->name = std::string("else");
             node->code += $3->code;
             $$ = node;
           }
@@ -721,6 +735,7 @@ until_loop: WHILE BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY
         CodeNode* node = new CodeNode;
         std::ostringstream ll;
         ll << loop;
+        curloop = std::string("beginloop") + ll.str();
         node->code = std::string(": beginloop") +  ll.str() + std::string("\n");
         node->code += $3->code;
         node->code += std::string("?:= bodyloop") + ll.str() + std::string(", ") + $3->name + std::string("\n");
