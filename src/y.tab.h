@@ -79,9 +79,8 @@ extern int yydebug;
     COMMA = 289,
     AND = 290,
     OR = 291,
-    DOT = 292,
-    NUMBER = 293,
-    IDENTIFIER = 294
+    NUMBER = 292,
+    IDENTIFIER = 293
   };
 #endif
 
@@ -90,12 +89,12 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 109 "bison.y" /* yacc.c:1909  */
+#line 175 "bison.y" /* yacc.c:1909  */
 
   char *op_val;
   struct CodeNode *node;
 
-#line 99 "y.tab.h" /* yacc.c:1909  */
+#line 98 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

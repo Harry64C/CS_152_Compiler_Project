@@ -69,6 +69,8 @@
     #include <vector>
     #include <string.h>
     #include <stdlib.h>
+    #include <sstream>
+
 
     extern int yylex();
     extern int yyparse();
@@ -80,8 +82,15 @@
     extern char* yytext;
     #define YYERROR_VERBOSE 1
     void yyerror(const char* s);
-
+    bool ifFunc = false;
+    bool ifArray = false;
+    std::string varName; 
+    bool ifArr = false;
+    bool leZero = false;
+    int loop = 0;
+    int ifcount = 0;
     enum Type { Integer, Array };
+    std::ostringstream ll;
 
     struct Symbol {
         std::string name;
@@ -92,13 +101,17 @@
         std::string name;
         std::vector<Symbol> declarations;
     };
-
+static int count;
 std::string create_temp() {
+    std::ostringstream ss;
     static int num = 0;
-    std::string value = "_temp" + num;
+    ss << num;
+    std::string value = "_temp" + ss.str();
     num += 1;
     return value;
 } 
+
+
 
 std::string decl_temp_code(std::string &temp) {
     return std::string(". ") + temp + std::string("\n");
@@ -116,7 +129,60 @@ std::string decl_temp_code(std::string &temp) {
         }
         return &symbol_table[last];
     }
-
+    std::vector <std::string> reservedWords;
+    bool inReserve(std::string &value){
+        reservedWords.push_back(std::string("check"));
+        reservedWords.push_back(std::string("plus"));
+        reservedWords.push_back(std::string("minus"));
+        reservedWords.push_back(std::string("mult"));
+        reservedWords.push_back(std::string("divi"));
+        reservedWords.push_back(std::string("mod")); 
+        reservedWords.push_back(std::string("AND"));
+        reservedWords.push_back(std::string("OR"));
+        reservedWords.push_back(std::string("then"));
+        reservedWords.push_back(std::string("or"));
+        reservedWords.push_back(std::string("until"));
+        reservedWords.push_back(std::string("stop"));
+        reservedWords.push_back(std::string("go"));
+        reservedWords.push_back(std::string("inp"));
+        reservedWords.push_back(std::string("outp"));
+        reservedWords.push_back(std::string("eq"));
+        reservedWords.push_back(std::string("gte"));
+        reservedWords.push_back(std::string("lte"));
+        reservedWords.push_back(std::string("dne"));
+        reservedWords.push_back(std::string("gt"));
+        reservedWords.push_back(std::string("lt"));
+        reservedWords.push_back(std::string("funct"));
+        reservedWords.push_back(std::string("arr"));
+        reservedWords.push_back(std::string("inum"));
+        for(int i = 0; i < reservedWords.size(); i++){
+            if(value == reservedWords[i]){
+                return true;
+            }
+        }
+        return false;
+    }
+    bool f_function(std::string &value){
+        for(int i = 0; i < symbol_table.size(); i++){
+            if(symbol_table[i].name == value){
+                return true;
+            }
+        }
+        return false;
+    }
+    bool isArray(std::string &name){
+        Function *f = get_function();
+        for(int i = 0; i < f->declarations.size(); i++){
+            Symbol *s = &f->declarations[i];
+            if(s->name == name && s->type == Array){
+                return true;
+            }
+            else if(s->name == name){
+                return false;
+            }
+        }
+        return false;
+    }
     // find a particular variable using the symbol table.
     // grab the most recent function, and linear search to
     // find the symbol you are looking for.
@@ -170,7 +236,7 @@ std::string decl_temp_code(std::string &temp) {
     };
     
 
-#line 174 "y.tab.c" /* yacc.c:339  */
+#line 240 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -239,9 +305,8 @@ extern int yydebug;
     COMMA = 289,
     AND = 290,
     OR = 291,
-    DOT = 292,
-    NUMBER = 293,
-    IDENTIFIER = 294
+    NUMBER = 292,
+    IDENTIFIER = 293
   };
 #endif
 
@@ -250,12 +315,12 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 109 "bison.y" /* yacc.c:355  */
+#line 175 "bison.y" /* yacc.c:355  */
 
   char *op_val;
   struct CodeNode *node;
 
-#line 259 "y.tab.c" /* yacc.c:355  */
+#line 324 "y.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -272,7 +337,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 276 "y.tab.c" /* yacc.c:358  */
+#line 341 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -514,21 +579,21 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  6
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   126
+#define YYLAST   163
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  40
+#define YYNTOKENS  39
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  27
+#define YYNNTS  25
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  67
+#define YYNRULES  65
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  130
+#define YYNSTATES  126
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   294
+#define YYMAXUTOK   293
 
 #define YYTRANSLATE(YYX)                                                \
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -566,20 +631,20 @@ static const yytype_uint8 yytranslate[] =
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
-      35,    36,    37,    38,    39
+      35,    36,    37,    38
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   151,   151,   159,   168,   174,   188,   195,   202,   210,
-     214,   223,   228,   234,   242,   250,   251,   252,   253,   258,
-     259,   266,   270,   275,   285,   296,   306,   324,   330,   345,
-     357,   364,   373,   382,   384,   385,   386,   387,   388,   389,
-     390,   391,   394,   404,   413,   416,   417,   418,   419,   420,
-     423,   431,   432,   433,   434,   435,   442,   445,   446,   447,
-     450,   460,   463,   467,   468,   471,   472,   475
+       0,   217,   217,   230,   238,   244,   258,   270,   277,   285,
+     290,   312,   317,   322,   329,   336,   337,   338,   339,   345,
+     346,   354,   357,   361,   378,   408,   430,   455,   485,   493,
+     512,   536,   545,   552,   553,   554,   555,   556,   557,   558,
+     559,   562,   570,   578,   579,   580,   581,   582,   585,   592,
+     594,   608,   612,   618,   630,   647,   648,   654,   657,   669,
+     677,   699,   721,   725,   734,   745
 };
 #endif
 
@@ -593,12 +658,12 @@ static const char *const yytname[] =
   "NEQ", "GT", "LT", "BEGIN_BODY", "END_BODY", "BEGIN_PARAM", "END_PARAM",
   "L_PAREN", "R_PAREN", "IF", "ELSE", "ELSE_IF", "WHILE", "BREAK",
   "CONTINUE", "READ", "WRITE", "RETURN", "SEMICOLON", "COMMA", "AND", "OR",
-  "DOT", "NUMBER", "IDENTIFIER", "$accept", "prog_start", "functions",
-  "function", "function_ident", "arguments", "argument", "statements",
-  "statement", "nonsemicolonstatement", "declaration", "assignment",
-  "arraycall", "equations", "equationsp", "addop", "term", "termp",
-  "mulop", "factor", "function_call", "params", "param", "if_start",
-  "branch_check", "else_check", "until_loop", YY_NULLPTR
+  "NUMBER", "IDENTIFIER", "$accept", "prog_start", "functions", "function",
+  "function_ident", "arguments", "argument", "statements", "statement",
+  "nonsemicolonstatement", "declaration", "assignment", "arraycall",
+  "equations", "addop", "term", "mulop", "factor", "function_call",
+  "params", "param", "if_start", "branch_check", "else_check",
+  "until_loop", YY_NULLPTR
 };
 #endif
 
@@ -610,14 +675,14 @@ static const yytype_uint16 yytoknum[] =
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
      275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
-     285,   286,   287,   288,   289,   290,   291,   292,   293,   294
+     285,   286,   287,   288,   289,   290,   291,   292,   293
 };
 # endif
 
-#define YYPACT_NINF -53
+#define YYPACT_NINF -35
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-53)))
+  (!!((Yystate) == (-35)))
 
 #define YYTABLE_NINF -1
 
@@ -626,21 +691,21 @@ static const yytype_uint16 yytoknum[] =
 
   /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
      STATE-NUM.  */
-static const yytype_int8 yypact[] =
+static const yytype_int16 yypact[] =
 {
-       4,     9,    17,   -53,     4,    -9,   -53,   -53,   -53,    12,
-      21,    -5,    16,    18,   -53,    42,    21,    15,   -53,    24,
-      29,    31,    49,   -53,   -53,    50,    28,    35,    52,    39,
-      15,   -53,   -53,    67,   -53,   -53,   -53,    71,    65,    28,
-      28,    28,   -53,    28,   -53,     5,   -53,   -53,    68,     0,
-     -53,    23,   -18,   -18,   -53,    15,   -53,    28,    26,    28,
-      53,    73,    74,    69,   -53,   -53,   -53,   -53,   -53,   -53,
-     -53,   -53,   -53,    28,   -53,   -53,   -53,   -53,   -53,   -53,
-      28,    76,   -53,   -53,   -53,    77,    63,    78,   -53,   -53,
-      80,   -53,    79,    86,    88,   -53,   -53,    68,     0,    87,
-     -53,   -18,   -53,    89,   -53,    15,    15,   -53,   -53,   -53,
-     -53,   -53,    93,    94,    33,   -53,    96,    95,   -53,   -53,
-      15,    28,    97,    98,   -53,    99,    15,   101,    82,   -53
+       0,     7,    16,   -35,     0,    -4,   -35,   -35,   -35,    17,
+      49,    20,    33,    28,   -35,    37,    49,    15,   -35,    29,
+      36,    46,    55,   -35,   -35,    60,    23,     5,    57,    48,
+      15,   -35,   -35,    76,   -35,   -35,   -35,    79,    69,    23,
+      23,    23,   -35,    23,   -35,   -12,   -35,   140,    21,   -35,
+     -35,    -2,   -16,    23,   -35,    15,   -35,    23,    11,    23,
+      96,   107,   118,    56,   -35,   -35,   -35,   -35,   -35,   -35,
+     -35,   -35,    23,   -35,   -35,   -35,   -35,   -35,    23,    72,
+     140,   -35,   -35,    73,    59,    74,   -35,   140,    75,   140,
+      77,    80,    84,   -35,   -35,    21,   -35,    85,   -35,   -16,
+     -35,    95,   -35,    15,    15,   -35,   -35,   -35,    99,   108,
+      25,   -35,   111,   120,   -35,   -35,    15,    23,   119,   129,
+     -35,   131,    15,   132,   133,   -35
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -652,31 +717,31 @@ static const yytype_uint8 yydefact[] =
        9,     0,     0,     7,    10,     0,     9,    11,     8,     0,
        0,     0,     0,    17,    19,     0,     0,     0,     0,     0,
       11,    14,    15,     0,    16,    21,    22,    23,     0,     0,
-       0,     0,    51,     0,    53,    52,    55,    20,    33,    44,
-      54,     0,    59,    59,     5,    11,    13,     0,     0,     0,
-       0,     0,     0,     0,    34,    35,    36,    37,    38,    39,
-      40,    41,    31,     0,    45,    46,    47,    48,    49,    42,
-       0,     0,    27,    61,    60,     0,    57,     0,    12,    28,
-       0,    24,     0,     0,     0,    18,    50,    33,    44,     0,
-      56,    59,    30,     0,    25,    11,    11,    32,    43,    29,
-      58,    26,     0,     0,    65,    67,     0,     0,    62,    64,
-      11,     0,     0,     0,    66,     0,    11,     0,    65,    63
+       0,     0,    49,     0,    51,    50,    53,    20,    32,    42,
+      52,     0,    57,     0,     5,    11,    13,     0,     0,     0,
+       0,     0,     0,     0,    33,    34,    35,    36,    37,    38,
+      39,    40,     0,    43,    44,    45,    46,    47,     0,     0,
+      27,    59,    58,     0,    55,     0,    12,    28,     0,    24,
+       0,     0,     0,    18,    48,    31,    41,     0,    54,    57,
+      30,     0,    25,    11,    11,    29,    56,    26,     0,     0,
+      63,    65,     0,     0,    60,    62,    11,     0,     0,     0,
+      64,     0,    11,     0,    63,    61
 };
 
   /* YYPGOTO[NTERM-NUM].  */
-static const yytype_int8 yypgoto[] =
+static const yytype_int16 yypgoto[] =
 {
-     -53,   -53,   114,   -53,   -53,   105,   -53,   -27,   -53,   -53,
-     -53,   -53,   -17,   -35,    25,   -53,    51,    27,   -53,   -47,
-     -15,   -52,   -53,   -53,   -53,    -2,   -53
+     -35,   -35,   155,   -35,   -35,   144,   -35,   -26,   -35,   -35,
+     -35,   -35,   -17,   -34,   -35,    89,   -35,     6,   -15,    63,
+     -35,   -35,   -35,    39,   -35
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
       -1,     2,     3,     4,     9,    12,    13,    28,    29,    30,
-      31,    32,    46,    47,    72,    73,    48,    79,    80,    49,
-      50,    85,    86,    35,   118,   119,    36
+      31,    32,    46,    47,    72,    48,    78,    49,    50,    83,
+      84,    35,   114,   115,    36
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -684,67 +749,75 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-      33,    87,    34,    56,    60,    61,    62,     1,    63,    74,
-      75,    76,    92,    33,     5,    34,    82,     6,    19,    20,
-      83,    84,    89,    91,    11,    52,    42,    53,    88,    42,
-       8,    42,    10,    98,    14,    77,    78,    15,    33,    21,
-      34,    51,    22,    23,    24,    43,    25,    26,    43,   110,
-      43,    39,    16,    81,    27,    52,    90,    53,   116,   117,
-      17,    44,    45,    37,    44,    45,    44,    45,    38,    40,
-      41,    54,    55,    57,    93,    64,    65,    58,   112,   113,
-      66,    67,    68,    69,    70,    71,   123,    59,    33,    33,
-      34,    34,    96,   122,    94,    95,    99,   101,   100,   127,
-     103,   102,   104,    33,   105,    34,   106,   116,   109,    33,
-     111,    34,   114,   115,   120,   121,   124,   126,     7,   125,
-     128,    18,   107,     0,    97,   108,   129
+      33,    42,    34,     1,    56,    60,    61,    62,    52,    63,
+      53,    51,     5,    33,    42,    34,     6,    80,    19,    20,
+      43,    81,    82,    87,    89,    52,    42,    53,    79,    86,
+      73,    74,    75,    43,     8,    44,    45,    10,    33,    21,
+      34,    88,    22,    23,    24,    43,    25,    26,    44,    45,
+     112,   113,    11,    27,    15,    17,    76,    77,    14,    85,
+      44,    45,    16,    64,    65,    90,    39,    37,    66,    67,
+      68,    69,    70,    71,    38,    40,    54,   108,   109,    94,
+      41,    55,    57,   119,    96,    58,    33,    33,    34,    34,
+     118,    59,    97,    99,    98,   101,   123,   100,   103,    33,
+     102,    34,   104,    64,    65,    33,   105,    34,    66,    67,
+      68,    69,    70,    71,    64,    65,   107,    91,   110,    66,
+      67,    68,    69,    70,    71,    64,    65,   111,    92,   116,
+      66,    67,    68,    69,    70,    71,    64,    65,   120,    93,
+     117,    66,    67,    68,    69,    70,    71,    64,    65,   122,
+     121,   124,    66,    67,    68,    69,    70,    71,   112,     7,
+      18,    95,   106,   125
 };
 
-static const yytype_int16 yycheck[] =
+static const yytype_uint8 yycheck[] =
 {
-      17,    53,    17,    30,    39,    40,    41,     3,    43,     9,
-      10,    11,    59,    30,     5,    30,    51,     0,     3,     4,
-      38,    39,    57,    58,     3,    20,     3,    22,    55,     3,
-      39,     3,    20,    80,    39,    35,    36,    21,    55,    24,
-      55,     6,    27,    28,    29,    22,    31,    32,    22,   101,
-      22,    20,    34,    30,    39,    20,    30,    22,    25,    26,
-      18,    38,    39,    39,    38,    39,    38,    39,    39,    20,
-      20,    19,    33,     6,    21,     7,     8,     6,   105,   106,
-      12,    13,    14,    15,    16,    17,   121,    22,   105,   106,
-     105,   106,    23,   120,    21,    21,    20,    34,    21,   126,
-      20,    23,    23,   120,    18,   120,    18,    25,    21,   126,
-      21,   126,    19,    19,    18,    20,    19,    18,     4,    21,
-      19,    16,    97,    -1,    73,    98,   128
+      17,     3,    17,     3,    30,    39,    40,    41,    20,    43,
+      22,     6,     5,    30,     3,    30,     0,    51,     3,     4,
+      22,    37,    38,    57,    58,    20,     3,    22,    30,    55,
+       9,    10,    11,    22,    38,    37,    38,    20,    55,    24,
+      55,    30,    27,    28,    29,    22,    31,    32,    37,    38,
+      25,    26,     3,    38,    21,    18,    35,    36,    38,    53,
+      37,    38,    34,     7,     8,    59,    20,    38,    12,    13,
+      14,    15,    16,    17,    38,    20,    19,   103,   104,    23,
+      20,    33,     6,   117,    78,     6,   103,   104,   103,   104,
+     116,    22,    20,    34,    21,    20,   122,    23,    18,   116,
+      23,   116,    18,     7,     8,   122,    21,   122,    12,    13,
+      14,    15,    16,    17,     7,     8,    21,    21,    19,    12,
+      13,    14,    15,    16,    17,     7,     8,    19,    21,    18,
+      12,    13,    14,    15,    16,    17,     7,     8,    19,    21,
+      20,    12,    13,    14,    15,    16,    17,     7,     8,    18,
+      21,    19,    12,    13,    14,    15,    16,    17,    25,     4,
+      16,    72,    99,   124
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     3,    41,    42,    43,     5,     0,    42,    39,    44,
-      20,     3,    45,    46,    39,    21,    34,    18,    45,     3,
-       4,    24,    27,    28,    29,    31,    32,    39,    47,    48,
-      49,    50,    51,    52,    60,    63,    66,    39,    39,    20,
-      20,    20,     3,    22,    38,    39,    52,    53,    56,    59,
-      60,     6,    20,    22,    19,    33,    47,     6,     6,    22,
-      53,    53,    53,    53,     7,     8,    12,    13,    14,    15,
-      16,    17,    54,    55,     9,    10,    11,    35,    36,    57,
-      58,    30,    53,    38,    39,    61,    62,    61,    47,    53,
-      30,    53,    59,    21,    21,    21,    23,    56,    59,    20,
-      21,    34,    23,    20,    23,    18,    18,    54,    57,    21,
-      61,    21,    47,    47,    19,    19,    25,    26,    64,    65,
-      18,    20,    47,    53,    19,    21,    18,    47,    19,    65
+       0,     3,    40,    41,    42,     5,     0,    41,    38,    43,
+      20,     3,    44,    45,    38,    21,    34,    18,    44,     3,
+       4,    24,    27,    28,    29,    31,    32,    38,    46,    47,
+      48,    49,    50,    51,    57,    60,    63,    38,    38,    20,
+      20,    20,     3,    22,    37,    38,    51,    52,    54,    56,
+      57,     6,    20,    22,    19,    33,    46,     6,     6,    22,
+      52,    52,    52,    52,     7,     8,    12,    13,    14,    15,
+      16,    17,    53,     9,    10,    11,    35,    36,    55,    30,
+      52,    37,    38,    58,    59,    56,    46,    52,    30,    52,
+      56,    21,    21,    21,    23,    54,    56,    20,    21,    34,
+      23,    20,    23,    18,    18,    21,    58,    21,    46,    46,
+      19,    19,    25,    26,    61,    62,    18,    20,    46,    52,
+      19,    21,    18,    46,    19,    62
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    40,    41,    42,    42,    43,    44,    45,    45,    46,
-      46,    47,    47,    47,    48,    48,    48,    48,    48,    48,
-      48,    49,    49,    50,    50,    50,    50,    51,    51,    51,
-      52,    53,    54,    54,    55,    55,    55,    55,    55,    55,
-      55,    55,    56,    57,    57,    58,    58,    58,    58,    58,
-      59,    59,    59,    59,    59,    59,    60,    61,    61,    61,
-      62,    62,    63,    64,    64,    65,    65,    66
+       0,    39,    40,    41,    41,    42,    43,    44,    44,    45,
+      45,    46,    46,    46,    47,    47,    47,    47,    47,    47,
+      47,    48,    48,    49,    49,    49,    49,    50,    50,    50,
+      51,    52,    52,    53,    53,    53,    53,    53,    53,    53,
+      53,    54,    54,    55,    55,    55,    55,    55,    56,    56,
+      56,    56,    56,    56,    57,    58,    58,    58,    59,    59,
+      60,    61,    61,    62,    62,    63
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
@@ -753,10 +826,10 @@ static const yytype_uint8 yyr2[] =
        0,     2,     1,     2,     0,     9,     1,     1,     3,     0,
        2,     0,     3,     2,     1,     1,     1,     1,     4,     1,
        2,     1,     1,     2,     4,     5,     6,     3,     3,     5,
-       4,     2,     3,     0,     1,     1,     1,     1,     1,     1,
-       1,     1,     2,     3,     0,     1,     1,     1,     1,     1,
-       3,     1,     1,     1,     1,     1,     4,     1,     3,     0,
-       1,     1,     8,     8,     1,     0,     4,     7
+       4,     3,     1,     1,     1,     1,     1,     1,     1,     1,
+       1,     3,     1,     1,     1,     1,     1,     1,     3,     1,
+       1,     1,     1,     1,     4,     1,     3,     0,     1,     1,
+       8,     8,     1,     0,     4,     7
 };
 
 
@@ -1433,21 +1506,25 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 151 "bison.y" /* yacc.c:1646  */
+#line 217 "bison.y" /* yacc.c:1646  */
     { // this happens last
-    printf("prog_start -> functions\n");
     CodeNode* node = (yyvsp[0].node); // $1 means the leftmost of the rhs of the grammar
     std::string code = node->code;
-    printf("\ngenerated code:\n");
+    std::string error;
+    std::string mains = std::string("main");
+    if(!f_function(mains)){
+        error = std::string("No main Function");
+        yyerror(error.c_str());
+    }
+    //printf("generated code:\n");
     printf("%s\n", code.c_str());
 }
-#line 1445 "y.tab.c" /* yacc.c:1646  */
+#line 1523 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 159 "bison.y" /* yacc.c:1646  */
+#line 230 "bison.y" /* yacc.c:1646  */
     {
-    printf("prog_start -> function functions\n");
     CodeNode* func = (yyvsp[-1].node);
     CodeNode* funcs = (yyvsp[0].node);
     std::string code = func->code + funcs->code;
@@ -1455,49 +1532,54 @@ yyreduce:
     node->code = code;
     (yyval.node) = node;
     }
-#line 1459 "y.tab.c" /* yacc.c:1646  */
+#line 1536 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 168 "bison.y" /* yacc.c:1646  */
+#line 238 "bison.y" /* yacc.c:1646  */
     {
             CodeNode *node = new CodeNode;
             (yyval.node) = node;
     }
-#line 1468 "y.tab.c" /* yacc.c:1646  */
+#line 1545 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 174 "bison.y" /* yacc.c:1646  */
+#line 244 "bison.y" /* yacc.c:1646  */
     {
-            printf("function -> INTEGER FUNCTION function_ident BEGIN_PARAM arguments END_PARAM BEGIN_BODY statements END_BODY\n");
             std::string func_name = (yyvsp[-6].op_val);
-            CodeNode* param = (yyvsp[-4].node);
+            CodeNode* argumen = (yyvsp[-4].node);
             CodeNode* body = (yyvsp[-1].node);
+            add_function_to_symbol_table(func_name);
             std::string code = std::string("func ") + func_name + std::string("\n");
-            code += param->code;
+            code += argumen->code;
             code += body->code;
             code +=std::string("endfunc\n");
             CodeNode *node = new CodeNode;
             node->code = code;
             (yyval.node) = node;
     }
-#line 1486 "y.tab.c" /* yacc.c:1646  */
+#line 1563 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 188 "bison.y" /* yacc.c:1646  */
+#line 258 "bison.y" /* yacc.c:1646  */
     {
     // add the function to the symbol table.
     std::string func_name = (yyvsp[0].op_val);
+    std::string error;
+    if(inReserve(func_name)){
+        error = std::string(" name cannot be a reserved word");
+        yyerror(error.c_str());
+    }
     add_function_to_symbol_table(func_name);
     (yyval.op_val) = (yyvsp[0].op_val);
 }
-#line 1497 "y.tab.c" /* yacc.c:1646  */
+#line 1579 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 195 "bison.y" /* yacc.c:1646  */
+#line 270 "bison.y" /* yacc.c:1646  */
     { 
         CodeNode* arg = (yyvsp[0].node);
         std::string code = arg->code;
@@ -1505,11 +1587,11 @@ yyreduce:
         node->code = code;
         (yyval.node) = node;
 }
-#line 1509 "y.tab.c" /* yacc.c:1646  */
+#line 1591 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 202 "bison.y" /* yacc.c:1646  */
+#line 277 "bison.y" /* yacc.c:1646  */
     { CodeNode*  arg = (yyvsp[-2].node);
          CodeNode* args = (yyvsp[0].node);
          std::string code = arg->code + args->code;
@@ -1517,194 +1599,252 @@ yyreduce:
          node->code = code;
          (yyval.node) = node;
 }
-#line 1521 "y.tab.c" /* yacc.c:1646  */
+#line 1603 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 210 "bison.y" /* yacc.c:1646  */
+#line 285 "bison.y" /* yacc.c:1646  */
     {
     CodeNode *node = new CodeNode;
+    count = 0;
     (yyval.node) = node;
 }
-#line 1530 "y.tab.c" /* yacc.c:1646  */
+#line 1613 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 214 "bison.y" /* yacc.c:1646  */
+#line 290 "bison.y" /* yacc.c:1646  */
     {std::string value = (yyvsp[0].op_val); 
         Type t = Integer;
+        std::string error;
+        if(inReserve(value)){
+            error = std::string("variable cannot be defined by a reservedWord");
+        }
+        if(find(value)|| f_function(value)){
+            error = std::string("variable already defined");
+            yyerror(error.c_str());
+        }
         add_variable_to_symbol_table(value, t);
         std::string code = std::string(". ") + value + std::string("\n");
+        std::ostringstream s;
+        s << count;
+        //printf("count is %d", count);
+        code += std::string("= ") + value + std::string(", ") + std::string("$") + s.str() + std::string("\n");
         CodeNode* node = new CodeNode;
         node->code = code;
+        count++;
         (yyval.node) = node;
 }
-#line 1543 "y.tab.c" /* yacc.c:1646  */
+#line 1639 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 223 "bison.y" /* yacc.c:1646  */
+#line 312 "bison.y" /* yacc.c:1646  */
     {
-    printf("statements -> epsilon\n");
     CodeNode* node = new CodeNode;
+    count = 0;
     (yyval.node) = node;
 }
-#line 1553 "y.tab.c" /* yacc.c:1646  */
+#line 1649 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 228 "bison.y" /* yacc.c:1646  */
+#line 317 "bison.y" /* yacc.c:1646  */
     {
-    printf("statements -> statement SEMICOLON statements\n");
     CodeNode* node = new CodeNode;
     node->code = (yyvsp[-2].node)->code + (yyvsp[0].node)->code;
     (yyval.node) = node;
 }
-#line 1564 "y.tab.c" /* yacc.c:1646  */
+#line 1659 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 234 "bison.y" /* yacc.c:1646  */
+#line 322 "bison.y" /* yacc.c:1646  */
     {
-    printf("statements -> nonsemicolonstatement statements\n");
     CodeNode* node = new CodeNode;
     node->code = (yyvsp[-1].node)->code + (yyvsp[0].node)->code;
     (yyval.node) = node;
 }
-#line 1575 "y.tab.c" /* yacc.c:1646  */
+#line 1669 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 242 "bison.y" /* yacc.c:1646  */
+#line 329 "bison.y" /* yacc.c:1646  */
     {
-    printf("statement -> declaration\n");
     CodeNode* decl = (yyvsp[0].node); 
     std::string code = decl->code; 
     CodeNode* node = new CodeNode; 
     node->code = code; 
     (yyval.node) = node;
 }
-#line 1588 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 15:
-#line 250 "bison.y" /* yacc.c:1646  */
-    {(yyval.node) = (yyvsp[0].node);}
-#line 1594 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 16:
-#line 251 "bison.y" /* yacc.c:1646  */
-    {(yyval.node) = (yyvsp[0].node);}
-#line 1600 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 17:
-#line 252 "bison.y" /* yacc.c:1646  */
-    {}
-#line 1606 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 18:
-#line 253 "bison.y" /* yacc.c:1646  */
-    {
-            CodeNode* node = new CodeNode; 
-            node->code = std::string(". > ") + (yyvsp[-1].node)->code + std::string("\n"); 
-            (yyval.node) = node; 
-}
-#line 1616 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 19:
-#line 258 "bison.y" /* yacc.c:1646  */
-    {printf("statement -> CONTINUE\n");}
-#line 1622 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 20:
-#line 259 "bison.y" /* yacc.c:1646  */
-    {
-            CodeNode* node = new CodeNode; 
-            node->code = std::string("ret ") + (yyvsp[0].node)->code + std::string("\n"); 
-            (yyval.node) = node; 
-}
-#line 1632 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 21:
-#line 266 "bison.y" /* yacc.c:1646  */
-    {
-    printf("nonsemicolonstatement -> if_start\n");
-    (yyval.node) = (yyvsp[0].node);
-}
-#line 1641 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 22:
-#line 270 "bison.y" /* yacc.c:1646  */
-    {
-            printf("nonsemicolonstatement -> until_loop\n");
-            (yyval.node) = (yyvsp[0].node);
-}
-#line 1650 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 23:
-#line 275 "bison.y" /* yacc.c:1646  */
-    {
-        printf("declaration -> INTEGER IDENTIFIER\n");
-        std::string value = (yyvsp[0].op_val); 
-        Type t = Integer;
-        add_variable_to_symbol_table(value, t);
-        std::string code = std::string(". ") + value + std::string("\n");
-        CodeNode* node = new CodeNode;
-        node->code = code;
-        (yyval.node) = node;
-}
-#line 1665 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 24:
-#line 285 "bison.y" /* yacc.c:1646  */
-    {
-        printf("declaration -> INTEGER IDENTIFIER ASSIGN equations\n");
-        std::string value = (yyvsp[-2].op_val); 
-        Type t = Integer;
-        add_variable_to_symbol_table(value, t);
-        std::string code = std::string(". ") + value + std::string("\n");
-        code += std::string("= ") + value + (yyvsp[0].node)->code;
-        CodeNode* node = new CodeNode;
-        node->code = code;
-        (yyval.node) = node;
-}
 #line 1681 "y.tab.c" /* yacc.c:1646  */
     break;
 
+  case 15:
+#line 336 "bison.y" /* yacc.c:1646  */
+    {(yyval.node) = (yyvsp[0].node);}
+#line 1687 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 16:
+#line 337 "bison.y" /* yacc.c:1646  */
+    {(yyval.node) = (yyvsp[0].node);}
+#line 1693 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 17:
+#line 338 "bison.y" /* yacc.c:1646  */
+    {}
+#line 1699 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 18:
+#line 339 "bison.y" /* yacc.c:1646  */
+    {
+            CodeNode* node = new CodeNode; 
+            node->code = (yyvsp[-1].node)->code;
+            node->code += std::string(".> ") + (yyvsp[-1].node)->name + std::string("\n");             
+            (yyval.node) = node; 
+}
+#line 1710 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 19:
+#line 345 "bison.y" /* yacc.c:1646  */
+    {}
+#line 1716 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 20:
+#line 346 "bison.y" /* yacc.c:1646  */
+    {
+            CodeNode* node = new CodeNode; 
+            CodeNode* eq = (yyvsp[0].node);
+            node->code = eq->code; 
+            node->code += std::string("ret ") + eq->name + std::string("\n"); 
+            (yyval.node) = node; 
+         }
+#line 1728 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 21:
+#line 354 "bison.y" /* yacc.c:1646  */
+    {
+    (yyval.node) = (yyvsp[0].node);
+}
+#line 1736 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 22:
+#line 357 "bison.y" /* yacc.c:1646  */
+    {
+            (yyval.node) = (yyvsp[0].node);
+}
+#line 1744 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 23:
+#line 361 "bison.y" /* yacc.c:1646  */
+    {
+        std::string value = (yyvsp[0].op_val); 
+        Type t = Integer;
+        std::string error;
+        if(inReserve(value)){
+            error = std::string("variable cannot be defined by a reservedWord");
+        }
+        if(find(value)|| f_function(value)){
+            error = std::string("variable already defined");
+            yyerror(error.c_str());
+        }
+        add_variable_to_symbol_table(value, t);
+        std::string code = std::string(". ") + value + std::string("\n");
+        CodeNode* node = new CodeNode;
+        node->code = code;
+        (yyval.node) = node;
+}
+#line 1766 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 24:
+#line 378 "bison.y" /* yacc.c:1646  */
+    {
+        std::string value = (yyvsp[-2].op_val); 
+        Type t = Integer;
+        std::string error;
+        if(inReserve(value)){
+            error = std::string("variable cannot be defined by a reservedWord");
+        }
+        if(find(value)|| f_function(value)){
+            error = std::string("variable already defined");
+            yyerror(error.c_str());
+        }
+        add_variable_to_symbol_table(value, t);
+
+        CodeNode* node = new CodeNode;
+        //CodeNode* eq = $4;
+        //node->code = eq->code;
+
+        node->code = std::string(". ") + value + std::string("\n");
+        CodeNode* eq = (yyvsp[0].node);
+
+        if(ifArray){
+            node->code = std::string("=[] ") + value + std::string(", ") + eq->code + std::string("\n");
+            ifArray = false;
+        }
+        else {
+            node->code += eq->code;
+            node->code += std::string("= ") + value + std::string(", ") + eq->name + std::string("\n");
+        }
+        (yyval.node) = node;
+}
+#line 1801 "y.tab.c" /* yacc.c:1646  */
+    break;
+
   case 25:
-#line 296 "bison.y" /* yacc.c:1646  */
+#line 408 "bison.y" /* yacc.c:1646  */
     {
         std::string name = (yyvsp[-3].op_val);
         CodeNode* n = (yyvsp[-1].node); 
-        Type t = Integer;
+        Type t = Array;
+        std::string error;
+        if(inReserve(name)){
+            error = std::string("variable cannot be defined by a reservedWord");
+        }
+        if(find(name)|| f_function(name)){
+            error = std::string("variable already defined");
+            yyerror(error.c_str());
+        }
+        else if (leZero == true){
+            error = std::string("Invalid size less than or equal to 0");
+            yyerror(error.c_str());
+        }
         add_variable_to_symbol_table(name, t);
-        std::string code = std::string(".[] ") + name + std::string(", ") + n->code  + std::string("\n");
+        std::string code = std::string(".[] ") + name + std::string(", ") + (yyvsp[-1].node)->name  + std::string("\n");
         CodeNode* node = new CodeNode;
         node->code = code;
         (yyval.node) =node;
 }
-#line 1696 "y.tab.c" /* yacc.c:1646  */
+#line 1828 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 306 "bison.y" /* yacc.c:1646  */
+#line 430 "bison.y" /* yacc.c:1646  */
     {
         std::string name = (yyvsp[-4].op_val);
-        //std::string error;
+        std::string error;
         //if (!find(name, Integer, error)) {
         //    yyerror(error.c_str());
         //}
+        
 
         Type t = Integer;
+        if(inReserve(name)){
+            error = std::string("variable cannot be defined by a reservedWord");
+        }
+        if(find(name)|| f_function(name)){
+            error = std::string("variable already defined");
+            yyerror(error.c_str());
+        }
         add_variable_to_symbol_table(name, t);
         std::string code = std::string(". ") + name + std::string("\n");
         CodeNode* node = new CodeNode;
@@ -1713,340 +1853,488 @@ yyreduce:
         node->code += std::string(".< ") + name + std::string("\n");
         (yyval.node) = node;
 }
-#line 1717 "y.tab.c" /* yacc.c:1646  */
+#line 1857 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 324 "bison.y" /* yacc.c:1646  */
+#line 455 "bison.y" /* yacc.c:1646  */
     {
         std::string name = (yyvsp[-2].op_val);
+         std::string error;
+         
+        if (!find(name)) {
+            error = std::string("UNKNOWN VARIABLE");
+            yyerror(error.c_str());
+        }
+        if(isArray(name)){
+            error = std::string("variable is an array and is missing array index");
+            yyerror(error.c_str());
+        }
         CodeNode* node = new CodeNode;
-        node->code = std::string("= ") + name + std::string(", ") + (yyvsp[0].node)->code + std::string("\n");
+        CodeNode* eq = (yyvsp[0].node);
+        node->code = eq->code;
+        if(ifFunc){
+            node->code += name + std::string("\n");
+            ifFunc = false;
+        }
+        else if(ifArray){
+            node->code = eq->code;
+            node->code += std::string("= ") + name + std::string(", ") + (yyvsp[0].node)->name + std::string("\n");
+            ifArray = false;
+        }
+        else{
+            node->code += std::string("= ")+ name + std::string(", ") + (yyvsp[0].node)->name + std::string("\n");
+        }
         (yyval.node) = node;
 }
-#line 1728 "y.tab.c" /* yacc.c:1646  */
+#line 1891 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 330 "bison.y" /* yacc.c:1646  */
+#line 485 "bison.y" /* yacc.c:1646  */
     {
-            
-            printf("arraycall ASSIGN equations\n");
             CodeNode* node = new CodeNode;
-            node->code = std::string("[]= ") + (yyvsp[-2].node)->code + std::string(", ") + (yyvsp[0].node)->code + std::string("\n");
-            
-            /*
-            std::string temp = create_temp();
-            CodeNode *node = new CodeNode;
-            node->code = $3->code + decl_temp_code(temp);
-            node->code += std::string("[]= ") + temp + std::string(", ") + std::string("\n");
-            node->name = temp;
-            */
+            CodeNode* eq = (yyvsp[0].node);
+            node->code = eq->code;
+            node->code += std::string("[]= ") + (yyvsp[-2].node)->code + std::string(", ") + (yyvsp[0].node)->name + std::string("\n");
             (yyval.node) = node;
 }
-#line 1748 "y.tab.c" /* yacc.c:1646  */
+#line 1903 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 345 "bison.y" /* yacc.c:1646  */
+#line 493 "bison.y" /* yacc.c:1646  */
     {
             std::string name = (yyvsp[-4].op_val);
-            //std::string error;
+            std::string error;
             //if (!find(name, Integer, error)) {
             //    yyerror(error.c_str());
             //}
-
+            if (!find(name)) {
+            error = std::string("UNKNOWN VARIABLE");
+            yyerror(error.c_str());
+            }
+            if(isArray(name)){
+                error = std::string("variable is an array and is missing array index");
+                yyerror(error.c_str());
+            }
             CodeNode* node = new CodeNode;
             node->code = std::string(".< ") + name + std::string("\n");
             (yyval.node) = node;
 }
-#line 1764 "y.tab.c" /* yacc.c:1646  */
+#line 1926 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 357 "bison.y" /* yacc.c:1646  */
+#line 512 "bison.y" /* yacc.c:1646  */
     {
     std::string name = (yyvsp[-3].op_val);
     CodeNode* node = new CodeNode;
-    node->code = name + std::string(", ") + (yyvsp[-1].node)->code;
+    std::string error;
+         
+    if (!find(name)) {
+        error = std::string("UNKNOWN VARIABLE");
+        yyerror(error.c_str());
+    }
+    if(!isArray(name)){
+        error = std::string("Variable is not an array");
+        yyerror(error.c_str());
+    }
+    if(leZero == true){
+        error = std::string("Invalid access to array element less than zero");
+        yyerror(error.c_str()); 
+    }
+
+    CodeNode* fac = (yyvsp[-1].node);
+    node->code = fac->code;
+    node->code += name + std::string(", ") + fac->name;
     (yyval.node) = node;
 }
-#line 1775 "y.tab.c" /* yacc.c:1646  */
+#line 1954 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 364 "bison.y" /* yacc.c:1646  */
+#line 536 "bison.y" /* yacc.c:1646  */
     {
-    CodeNode* t = (yyvsp[-1].node); 
-    CodeNode* eqp = (yyvsp[0].node); 
-    std::string code = t->code + eqp->code; 
-    CodeNode* node = new CodeNode; 
-    node->code = code; 
+    std::string temp = create_temp();
+    CodeNode* node = new CodeNode;
+    node->code = (yyvsp[-2].node)->code + (yyvsp[0].node)->code + decl_temp_code(temp);
+    node->code += (yyvsp[-1].node)->code + temp + std::string(", ") + (yyvsp[-2].node)->name + std::string(", ") + (yyvsp[0].node)->name + std::string("\n");
+    node->name = temp;
+
     (yyval.node) = node;
 }
-#line 1788 "y.tab.c" /* yacc.c:1646  */
+#line 1968 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 373 "bison.y" /* yacc.c:1646  */
+#line 545 "bison.y" /* yacc.c:1646  */
     {
-    CodeNode* op = (yyvsp[-2].node);
-    CodeNode* t = (yyvsp[-1].node); 
-    CodeNode* eqp = (yyvsp[0].node); 
-    std::string code = op->code + t->code + eqp->code; 
-    CodeNode* node = new CodeNode; 
-    node->code = code; 
-    (yyval.node) = node;
-}
-#line 1802 "y.tab.c" /* yacc.c:1646  */
+        CodeNode* node = new CodeNode;
+        node->code = (yyvsp[0].node)->code;
+        node->name = (yyvsp[0].node)->name;
+        (yyval.node) = node;
+    }
+#line 1979 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 382 "bison.y" /* yacc.c:1646  */
-    {CodeNode* node = new CodeNode; (yyval.node) = node;}
-#line 1808 "y.tab.c" /* yacc.c:1646  */
+#line 552 "bison.y" /* yacc.c:1646  */
+    {CodeNode* node = new CodeNode; node->code = std::string("+ "); (yyval.node) = node;}
+#line 1985 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 384 "bison.y" /* yacc.c:1646  */
-    {CodeNode* node = new CodeNode; node->code = std::string("+ "); (yyval.node) = node;}
-#line 1814 "y.tab.c" /* yacc.c:1646  */
+#line 553 "bison.y" /* yacc.c:1646  */
+    {CodeNode* node = new CodeNode; node->code = std::string("- "); (yyval.node) = node;}
+#line 1991 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 385 "bison.y" /* yacc.c:1646  */
-    {CodeNode* node = new CodeNode; node->code = std::string("- "); (yyval.node) = node;}
-#line 1820 "y.tab.c" /* yacc.c:1646  */
+#line 554 "bison.y" /* yacc.c:1646  */
+    {CodeNode* node = new CodeNode; node->code = std::string("+ "); (yyval.node) = node;}
+#line 1997 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 386 "bison.y" /* yacc.c:1646  */
-    {CodeNode* node = new CodeNode; node->code = std::string("+ "); (yyval.node) = node;}
-#line 1826 "y.tab.c" /* yacc.c:1646  */
+#line 555 "bison.y" /* yacc.c:1646  */
+    {CodeNode* node = new CodeNode; node->code = std::string(">= "); (yyval.node) = node;}
+#line 2003 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 387 "bison.y" /* yacc.c:1646  */
-    {CodeNode* node = new CodeNode; node->code = std::string(">= "); (yyval.node) = node;}
-#line 1832 "y.tab.c" /* yacc.c:1646  */
+#line 556 "bison.y" /* yacc.c:1646  */
+    {CodeNode* node = new CodeNode; node->code = std::string("<= "); (yyval.node) = node;}
+#line 2009 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 388 "bison.y" /* yacc.c:1646  */
-    {CodeNode* node = new CodeNode; node->code = std::string("<= "); (yyval.node) = node;}
-#line 1838 "y.tab.c" /* yacc.c:1646  */
+#line 557 "bison.y" /* yacc.c:1646  */
+    {CodeNode* node = new CodeNode; node->code = std::string("!= "); (yyval.node) = node;}
+#line 2015 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 389 "bison.y" /* yacc.c:1646  */
-    {CodeNode* node = new CodeNode; node->code = std::string("!= "); (yyval.node) = node;}
-#line 1844 "y.tab.c" /* yacc.c:1646  */
+#line 558 "bison.y" /* yacc.c:1646  */
+    {CodeNode* node = new CodeNode; node->code = std::string("> "); (yyval.node) = node;}
+#line 2021 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 390 "bison.y" /* yacc.c:1646  */
-    {CodeNode* node = new CodeNode; node->code = std::string("> "); (yyval.node) = node;}
-#line 1850 "y.tab.c" /* yacc.c:1646  */
+#line 559 "bison.y" /* yacc.c:1646  */
+    {CodeNode* node = new CodeNode; node->code = std::string("< "); (yyval.node) = node;}
+#line 2027 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 391 "bison.y" /* yacc.c:1646  */
-    {CodeNode* node = new CodeNode; node->code = std::string("< "); (yyval.node) = node;}
-#line 1856 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 42:
-#line 394 "bison.y" /* yacc.c:1646  */
+#line 562 "bison.y" /* yacc.c:1646  */
     {
-    CodeNode* fact = (yyvsp[-1].node); 
-    CodeNode* tp = (yyvsp[0].node); 
-    std::string code = fact->code + tp->code; 
-    CodeNode* node = new CodeNode; 
-    node->code = code; 
-    (yyval.node) = node;
-}
-#line 1869 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 43:
-#line 404 "bison.y" /* yacc.c:1646  */
-    {
-    CodeNode* op = (yyvsp[-2].node); 
-    CodeNode* fct = (yyvsp[-1].node); 
-    CodeNode* tp = (yyvsp[0].node); 
-    std::string code = op->code + fct->code + tp->code; 
-    CodeNode* node = new CodeNode; 
-    node->code = code; 
-    (yyval.node) = node;
-}
-#line 1883 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 44:
-#line 413 "bison.y" /* yacc.c:1646  */
-    {CodeNode* node = new CodeNode; (yyval.node) = node;}
-#line 1889 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 45:
-#line 416 "bison.y" /* yacc.c:1646  */
-    {CodeNode* node = new CodeNode; node->code = std::string("* "); (yyval.node) = node;}
-#line 1895 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 46:
-#line 417 "bison.y" /* yacc.c:1646  */
-    {CodeNode* node = new CodeNode; node->code = std::string("/ "); (yyval.node) = node;}
-#line 1901 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 47:
-#line 418 "bison.y" /* yacc.c:1646  */
-    {CodeNode* node = new CodeNode; node->code = std::string("% "); (yyval.node) = node;}
-#line 1907 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 48:
-#line 419 "bison.y" /* yacc.c:1646  */
-    {CodeNode* node = new CodeNode; node->code = std::string("&& "); (yyval.node) = node;}
-#line 1913 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 49:
-#line 420 "bison.y" /* yacc.c:1646  */
-    {CodeNode* node = new CodeNode; node->code = std::string("|| "); (yyval.node) = node;}
-#line 1919 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 50:
-#line 423 "bison.y" /* yacc.c:1646  */
-    {
-    CodeNode* eq = (yyvsp[-1].node);
-    std::string code = std::string("(") + eq->code + std::string(")");
-
-    CodeNode *node = new CodeNode;
-    node->code = code;
-    (yyval.node) = node;
-}
-#line 1932 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 51:
-#line 431 "bison.y" /* yacc.c:1646  */
-    {CodeNode* node = new CodeNode; (yyval.node) = node;}
-#line 1938 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 52:
-#line 432 "bison.y" /* yacc.c:1646  */
-    {CodeNode* node = new CodeNode; node->code = (yyvsp[0].op_val); (yyval.node) = node;}
-#line 1944 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 53:
-#line 433 "bison.y" /* yacc.c:1646  */
-    {CodeNode* node = new CodeNode; node->code = (yyvsp[0].op_val); (yyval.node) = node;}
-#line 1950 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 54:
-#line 434 "bison.y" /* yacc.c:1646  */
-    {CodeNode* node = new CodeNode; node->code = (yyvsp[0].node)->code; (yyval.node) = node;}
-#line 1956 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 55:
-#line 435 "bison.y" /* yacc.c:1646  */
-    {
-        CodeNode* node = new CodeNode; node->code = (yyvsp[0].node)->code; 
-        (yyval.node) = node;  
-      }
-#line 1965 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 56:
-#line 442 "bison.y" /* yacc.c:1646  */
-    {}
-#line 1971 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 57:
-#line 445 "bison.y" /* yacc.c:1646  */
-    {(yyval.node) = (yyvsp[0].node);}
-#line 1977 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 58:
-#line 446 "bison.y" /* yacc.c:1646  */
-    {printf("params-> param COMMA params\n");}
-#line 1983 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 59:
-#line 447 "bison.y" /* yacc.c:1646  */
-    {CodeNode* node = new CodeNode; (yyval.node) = node;}
-#line 1989 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 60:
-#line 450 "bison.y" /* yacc.c:1646  */
-    {
+    std::string temp = create_temp();
     CodeNode* node = new CodeNode;
-    node->code = "";
-    node->name = (yyvsp[0].op_val);
-    std::string error;
-    //if (!find(node->name, Integer, error)) {
-    //    yyerror(error.c_str());
-    //}
+    node->code = (yyvsp[-2].node)->code + (yyvsp[0].node)->code +  decl_temp_code(temp);
+    node->code += (yyvsp[-1].node)->code + temp + std::string(", ") + (yyvsp[-2].node)->name + std::string(", ") + (yyvsp[0].node)->name + std::string("\n");
+    node->name = temp;
     (yyval.node) = node;
 }
-#line 2004 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 61:
-#line 460 "bison.y" /* yacc.c:1646  */
-    {CodeNode* node = new CodeNode; node->code = (yyvsp[0].op_val); (yyval.node) = node;}
-#line 2010 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 62:
-#line 463 "bison.y" /* yacc.c:1646  */
-    {printf("if_start -> IF BEGIN_BODY if_check END_PARAM BEGIN_BODY statements END_BODY branch_check\n");}
-#line 2016 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 63:
-#line 467 "bison.y" /* yacc.c:1646  */
-    {printf("branch_check -> ELSE_IF BEGIN_BODY if_check END_PARAM BEGIN_BODY statements END_BODY else_check\n");}
-#line 2022 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 64:
-#line 468 "bison.y" /* yacc.c:1646  */
-    {printf("branch_check -> else_check\n");}
-#line 2028 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 65:
-#line 471 "bison.y" /* yacc.c:1646  */
-    {CodeNode* node = new CodeNode; (yyval.node) = node;}
-#line 2034 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 66:
-#line 472 "bison.y" /* yacc.c:1646  */
-    {printf("else_check -> ELSE BEGIN_BODY statements END_BODY\n");}
 #line 2040 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 67:
-#line 475 "bison.y" /* yacc.c:1646  */
-    {printf("until_loop -> WHILE BEGIN_PARAM equations END_PARAM BEGIN_BODY statements END_BODY\n");}
-#line 2046 "y.tab.c" /* yacc.c:1646  */
+  case 42:
+#line 570 "bison.y" /* yacc.c:1646  */
+    {
+    CodeNode* node = new CodeNode;
+    node->code = (yyvsp[0].node)->code;
+    node->name = (yyvsp[0].node)->name;
+    (yyval.node) = node;
+}
+#line 2051 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 43:
+#line 578 "bison.y" /* yacc.c:1646  */
+    {CodeNode* node = new CodeNode; node->code = std::string("* "); (yyval.node) = node;}
+#line 2057 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 44:
+#line 579 "bison.y" /* yacc.c:1646  */
+    {CodeNode* node = new CodeNode; node->code = std::string("/ "); (yyval.node) = node;}
+#line 2063 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 45:
+#line 580 "bison.y" /* yacc.c:1646  */
+    {CodeNode* node = new CodeNode; node->code = std::string("% "); (yyval.node) = node;}
+#line 2069 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 46:
+#line 581 "bison.y" /* yacc.c:1646  */
+    {CodeNode* node = new CodeNode; node->code = std::string("&& "); (yyval.node) = node;}
+#line 2075 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 47:
+#line 582 "bison.y" /* yacc.c:1646  */
+    {CodeNode* node = new CodeNode; node->code = std::string("|| "); (yyval.node) = node;}
+#line 2081 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 48:
+#line 585 "bison.y" /* yacc.c:1646  */
+    {
+    CodeNode* eq = (yyvsp[-1].node);
+    CodeNode *node = new CodeNode;
+    node->code = eq->code;
+    node->name = (yyvsp[-1].node)->name;
+    (yyval.node) = node;
+}
+#line 2093 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 49:
+#line 592 "bison.y" /* yacc.c:1646  */
+    {
+        CodeNode* node = new CodeNode; (yyval.node) = node;}
+#line 2100 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 50:
+#line 594 "bison.y" /* yacc.c:1646  */
+    {
+        CodeNode* node = new CodeNode; 
+        node->name = (yyvsp[0].op_val); 
+        std::string error;
+        if (!find(node->name)) {
+            error = std::string("UNKNOWN VARIABLE\n");
+            yyerror(error.c_str());
+        }
+        if(isArray(node->name)){
+            error = std::string("variable is an array and is missing array index");
+            yyerror(error.c_str());
+        }
+        (yyval.node) = node;
+}
+#line 2119 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 51:
+#line 608 "bison.y" /* yacc.c:1646  */
+    {//CodeNode* node = new CodeNode; node->name = $1; if(atoi($1) < 0){leZero = true;} else{leZero = false;} $$ = node;
+        std::string temp = create_temp(); CodeNode* node = new CodeNode; if(atoi((yyvsp[0].op_val)) < 0){ leZero = true; int ssd = -atoi((yyvsp[0].op_val));std::ostringstream ss;
+        ss << ssd; node->code = decl_temp_code(temp) + std::string("- ") + temp + std::string(", 0, ") + ss.str() + std::string("\n"); node->name = temp;} else{ leZero = false; node->name = (yyvsp[0].op_val);} (yyval.node) = node;
+      }
+#line 2128 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 52:
+#line 612 "bison.y" /* yacc.c:1646  */
+    {
+        CodeNode* node = new CodeNode; node->code = (yyvsp[0].node)->code;
+        node->name = (yyvsp[0].node)->name;
+        (yyval.node) = node;
+      }
+#line 2138 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 53:
+#line 618 "bison.y" /* yacc.c:1646  */
+    {
+        std::string temp = create_temp();
+        
+        ifArray = true;
+        CodeNode* node = new CodeNode;
+        node->code = decl_temp_code(temp);
+        node->code += std::string("=[] ") +temp +std::string(" , ") + (yyvsp[0].node)->code + std::string("\n");
+        node->name = temp;
+        (yyval.node) = node;
+
+      }
+#line 2154 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 54:
+#line 630 "bison.y" /* yacc.c:1646  */
+    {
+    std::string name = (yyvsp[-3].op_val);
+    std::string error;
+    if (!f_function(name)) {
+        error = std::string("Undefined function");
+        yyerror(error.c_str());
+    }
+
+    ifFunc = true;
+    CodeNode* node = new CodeNode;
+    node->name = (yyvsp[-3].op_val);
+    node->code = (yyvsp[-1].node)->code;
+    node->code += std::string("call ") + name + std::string(", ") + varName;
+    (yyval.node) = node;
+
+}
+#line 2175 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 55:
+#line 647 "bison.y" /* yacc.c:1646  */
+    {(yyval.node) = (yyvsp[0].node);}
+#line 2181 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 56:
+#line 648 "bison.y" /* yacc.c:1646  */
+    {
+            CodeNode* node = new CodeNode;
+            node->code = (yyvsp[-2].node)->code + std::string("\n") + (yyvsp[0].node)->code + std::string("\n") ;
+            (yyval.node) = node;
+
+        }
+#line 2192 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 57:
+#line 654 "bison.y" /* yacc.c:1646  */
+    {CodeNode* node = new CodeNode; (yyval.node) = node;}
+#line 2198 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 58:
+#line 657 "bison.y" /* yacc.c:1646  */
+    {
+        CodeNode* node = new CodeNode;
+        std::string name = (yyvsp[0].op_val);
+        node->name = name;
+        node->code = std::string("param ") + name;
+        std::string error;
+        if (!find(node->name)) {
+            error = std::string("UNKNOWN VARIABLE\n");
+            yyerror(error.c_str());
+        }
+        (yyval.node) = node;
+}
+#line 2215 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 59:
+#line 669 "bison.y" /* yacc.c:1646  */
+    {
+        CodeNode* node = new CodeNode;
+        std::string num = (yyvsp[0].op_val);
+        node->code = std::string("param ") + num + std::string("\n");
+        (yyval.node) = node;
+}
+#line 2226 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 60:
+#line 677 "bison.y" /* yacc.c:1646  */
+    {
+        CodeNode* node = new CodeNode;
+        std::ostringstream ll;
+        ll << ifcount;
+
+        node->code += (yyvsp[-5].node)->code;
+        node->code += std::string("?:= if_true") + ll.str() + std::string(", ") + (yyvsp[-5].node)->name + std::string("\n");
+        node->code += (yyvsp[0].node)->name;
+
+        //If body code
+        node->code += std::string(": if_true") + ll.str() + std::string("\n");
+        node->code += (yyvsp[-2].node)->code;
+        node->code += std::string(":= endif") + ll.str() + std::string("\n");
+
+        node->code += (yyvsp[0].node)->code;
+        //End of conditional branches
+        node->code += std::string(": endif") + ll.str() + std::string("\n");
+        ifcount++;
+        (yyval.node) = node;
+}
+#line 2251 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 61:
+#line 699 "bison.y" /* yacc.c:1646  */
+    {
+        CodeNode* node = new CodeNode;
+        std::ostringstream ll;
+        ll << ifcount;
+        
+        node->name = std::string(":= elseif_start") + ll.str() + std::string("\n");
+        node->code = std::string(": elseif_start") + ll.str() + std::string("\n");
+        node->code += (yyvsp[-5].node)->code;
+        node->code += std::string("?:= elseif_true") + ll.str() + std::string(", ") + (yyvsp[-5].node)->name + std::string("\n");
+        node->code += (yyvsp[0].node)->name;
+
+        //If body code
+        node->code += std::string(": elseif_true") + ll.str() + std::string("\n");
+        node->code += (yyvsp[-2].node)->code;
+        node->code += std::string(":= end_elseif") + ll.str() + std::string("\n");
+
+        node->code += (yyvsp[0].node)->code;
+        //End of conditional branches
+        node->code += std::string(": end_elseif") + ll.str() + std::string("\n");
+        ifcount++;
+        (yyval.node) = node;
+}
+#line 2278 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 62:
+#line 721 "bison.y" /* yacc.c:1646  */
+    {
+                (yyval.node) = (yyvsp[0].node);
+}
+#line 2286 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 63:
+#line 725 "bison.y" /* yacc.c:1646  */
+    {
+            CodeNode* node = new CodeNode;
+            std::ostringstream ll;
+            ll.str("");
+            ll << ifcount;
+            node->name = std::string(":= endif") + ll.str() + std::string("\n");
+            //ifcount++;
+            (yyval.node) = node;
+          }
+#line 2300 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 64:
+#line 734 "bison.y" /* yacc.c:1646  */
+    {
+            std::ostringstream ll;
+            ll.str("");
+            ll << ifcount;
+            CodeNode* node = new CodeNode;
+            node->name = std::string(":= else") + ll.str() + std::string("\n");
+            node->code += std::string(": else") + ll.str() + std::string("\n");
+            node->code += (yyvsp[-1].node)->code;
+            (yyval.node) = node;
+          }
+#line 2315 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 65:
+#line 745 "bison.y" /* yacc.c:1646  */
+    {
+        CodeNode* node = new CodeNode;
+        std::ostringstream ll;
+        ll << loop;
+        node->code = std::string(": beginloop") +  ll.str() + std::string("\n");
+        node->code += (yyvsp[-4].node)->code;
+        node->code += std::string("?:= bodyloop") + ll.str() + std::string(", ") + (yyvsp[-4].node)->name + std::string("\n");
+        node->code += std::string(":= endloop") + ll.str() + std::string("\n");
+        node->code += std::string(": bodyloop") + ll.str() + std::string("\n");
+        node->code += (yyvsp[-1].node)->code + std::string(":= beginloop") + ll.str() + std::string("\n");
+        node->code += std::string(": endloop") + ll.str() + std::string("\n");
+        loop++;
+        (yyval.node) = node;
+}
+#line 2334 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2050 "y.tab.c" /* yacc.c:1646  */
+#line 2338 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2274,7 +2562,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 479 "bison.y" /* yacc.c:1906  */
+#line 761 "bison.y" /* yacc.c:1906  */
 
 int main(int argc, char** argv) {
     if(argc >= 2){
