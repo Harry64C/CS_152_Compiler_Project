@@ -1,20 +1,22 @@
 inum funct main{}[
 
-  inum m;
-  inum n;
-  inum o ~ 3;
-  outp{o};
+  inum a;
+  inum b;
+  inum c;
+  a ~ 100;
+  b ~ 50;
 
-  n ~ 5;
-  check{((n gte 100) gte 10) OR (n lte 10)} [
-    outp{n};
+  check{a lt b} [
+    c ~ b;
   ]
     
+  #or{a gt b}[
+  #  c ~ a;
+  #]
+  
   then[
-    m ~ 10;
-    outp{m};
+    c ~ a;
   ]
 
-  outp{o};
-  
+  outp{c}; # This should print out 100
 ]
