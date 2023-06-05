@@ -346,7 +346,11 @@ statement: declaration {
             node->code += std::string(".> ") + $3->name + std::string("\n");             
             $$ = node; 
 }
-         | CONTINUE {}
+         | CONTINUE {CodeNode* node = new CodeNode;
+         ll << loop;
+         node->code = std::string(":= beginloop") + ll.str() + std::string("\n");
+         $$ = node;
+         }
          | RETURN equations {
             CodeNode* node = new CodeNode; 
             CodeNode* eq = $2;
@@ -555,7 +559,7 @@ equations: equations addop term {
 
 addop: ADD {CodeNode* node = new CodeNode; node->code = std::string("+ "); $$ = node;}
      | SUBTRACT {CodeNode* node = new CodeNode; node->code = std::string("- "); $$ = node;}
-     | EQ {CodeNode* node = new CodeNode; node->code = std::string("+ "); $$ = node;}
+     | EQ {CodeNode* node = new CodeNode; node->code = std::string("== "); $$ = node;}
      | GTE {CodeNode* node = new CodeNode; node->code = std::string(">= "); $$ = node;}
      | LTE {CodeNode* node = new CodeNode; node->code = std::string("<= "); $$ = node;}
      | NEQ {CodeNode* node = new CodeNode; node->code = std::string("!= "); $$ = node;}
