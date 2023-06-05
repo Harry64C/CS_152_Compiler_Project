@@ -335,7 +335,11 @@ statement: declaration {
 }
          | assignment {$$ = $1;}
          | function_call  {$$ = $1;}
-         | BREAK  {}
+         | BREAK  {CodeNode* node = new CodeNode;
+            ll << loop;
+          node->code = std::string(":= endloop") + ll.str() + std::string("\n");
+          $$ = node;
+         }
          | WRITE BEGIN_PARAM equations END_PARAM {
             CodeNode* node = new CodeNode; 
             node->code = $3->code;
