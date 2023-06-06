@@ -652,7 +652,12 @@ function_call: IDENTIFIER BEGIN_PARAM params END_PARAM  {
 
 };
 
-params: param {$$ = $1;}
+params: param {
+            CodeNode* node = new CodeNode;
+            node->code = $1->code + std::string("\n");
+            $$ = node;
+        
+        }
       | param COMMA params {
             CodeNode* node = new CodeNode;
             node->code = $1->code + std::string("\n") + $3->code + std::string("\n") ;
