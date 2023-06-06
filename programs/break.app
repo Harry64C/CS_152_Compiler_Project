@@ -7,10 +7,11 @@ inum funct main{}
 	until{i lte 10}
 	[
 		outp{i};
-		check{i gt 3}
+		check{i eq 3}
 		[
 			stop;
 		]
-		i ~ i plus i;
+		i ~ i plus 1;
 	]
+	outp{i};
 ]
