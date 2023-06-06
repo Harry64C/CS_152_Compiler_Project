@@ -6,8 +6,9 @@ inum funct main{}[
 
     i ~ 0;
     until{i lt 10}  [
+        inum z ~ 9;
         i ~ i plus 1;
         outp{i};
     ]
-
+    outp{z};
 ]
