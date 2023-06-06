@@ -660,7 +660,7 @@ params: param {
         }
       | param COMMA params {
             CodeNode* node = new CodeNode;
-            node->code = $1->code + std::string("\n") + $3->code + std::string("\n") ;
+            node->code = $1->code + std::string("\n") + $3->code;
             $$ = node;
 
         }
@@ -682,7 +682,7 @@ param: IDENTIFIER {
      | NUMBER {
         CodeNode* node = new CodeNode;
         std::string num = $1;
-        node->code = std::string("param ") + num + std::string("\n");
+        node->code = std::string("param ") + num;
         $$ = node;
 };
 
